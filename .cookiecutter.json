@@ -1,0 +1,16 @@
+{
+  "_checkout": "2022.6.3",
+  "_output_dir": "/Users/jimdickinson/Personal-Code/Boss-Bus",
+  "_repo_dir": "/Users/jimdickinson/.cookiecutters/cookiecutter-hypermodern-python",
+  "_template": "gh:cjolowicz/cookiecutter-hypermodern-python",
+  "author": "Jim Dickinson",
+  "copyright_year": "2023",
+  "development_status": "Development Status :: 2 - Pre-Alpha",
+  "email": "james.n.dickinson@gmail.com",
+  "friendly_name": "Boss Bus",
+  "github_user": "jimbroze",
+  "license": "GPL-3.0",
+  "package_name": "boss_bus",
+  "project_name": "boss-bus",
+  "version": "0.0.0"
+}
