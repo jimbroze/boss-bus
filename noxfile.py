@@ -23,7 +23,7 @@ except ImportError:
 
 
 package = "boss_bus"
-python_versions = ["3.10", "3.9", "3.8", "3.7"]
+python_versions = ["3.10", "3.9", "3.8"]
 nox.needs_version = ">= 2022.1.7"
 nox.options.sessions = (
     "pre-commit",
