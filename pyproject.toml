@@ -80,7 +80,6 @@ addopts = [
     "--testdox"
 ]
 markers = [
-    "unit: unit tests",
     "integration: integration tests",
 ]
 pythonpath = ["src"]
