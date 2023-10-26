@@ -76,7 +76,6 @@ show_error_context = true
 
 [tool.pytest.ini_options]
 addopts = [
-    "--import-mode=importlib",
     "--testdox"
 ]
 markers = [
