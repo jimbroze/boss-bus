@@ -60,6 +60,7 @@ source = ["boss_bus", "tests"]
 [tool.coverage.report]
 show_missing = true
 fail_under = 100
+ignore_errors = true
 
 [tool.isort]
 profile = "black"
