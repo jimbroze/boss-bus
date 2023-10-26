@@ -59,6 +59,9 @@ source = ["boss_bus", "tests"]
 show_missing = true
 fail_under = 100
 ignore_errors = true
+exclude_also = [
+    "raise NotImplementedError"
+]
 
 [tool.mypy]
 strict = true
