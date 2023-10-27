@@ -5,16 +5,22 @@ from boss_bus.event_bus import EventHandler
 
 
 class ExplosionEvent(Event):
-    pass
-
-
-class ExplosionEventHandler(EventHandler):
-    def handle(self, event: ExplosionEvent) -> str:
+    def get_event_data(self) -> str:
         return "It went boom"
 
 
+class FloodEvent(Event):
+    def get_event_data(self) -> str:
+        return "It got wet"
+
+
+class ExplosionEventHandler(EventHandler[ExplosionEvent]):
+    def handle(self, event: ExplosionEvent) -> str:
+        return event.get_event_data()
+
+
 class TestEventHandler:
-    def test_event_handler_handles_valid_event(self) -> None:
+    def test_event_handler_handles_a_valid_event(self) -> None:
         event = ExplosionEvent()
         handler = ExplosionEventHandler()
 
