@@ -9,7 +9,7 @@ class ExplosionEvent(Event):
         return "It went boom"
 
 
-class FloodEvent(Event):
+class FloodEvent:
     def get_event_data(self) -> str:
         return "It got wet"
 
@@ -27,3 +27,17 @@ class TestEventHandler:
         result = handler.handle(event)
 
         assert result == "It went boom"
+
+    def test_event_handler_does_not_restrict_event_type(self) -> None:
+        """Remove responsibility from the handlers and allow duck typing.
+
+        While this will not pass static type checking, the event type is not enforced
+        at runtime. I may review this requirement in the future, particularly if
+        the interface of the Event class becomes more complex.
+        """
+        event = FloodEvent()
+        handler = ExplosionEventHandler()
+
+        result = handler.handle(event)  # type: ignore
+
+        assert result == "It got wet"
