@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from _pytest.capture import CaptureFixture
+
 from boss_bus.event_bus import Event
 from boss_bus.event_bus import EventHandler
 
@@ -20,7 +22,9 @@ class ExplosionEventHandler(EventHandler[ExplosionEvent]):
 
 
 class TestEventHandler:
-    def test_event_handler_handles_a_valid_event(self, capsys) -> None:
+    def test_event_handler_handles_a_valid_event(
+        self, capsys: CaptureFixture[str]
+    ) -> None:
         event = ExplosionEvent()
         handler = ExplosionEventHandler()
 
@@ -29,7 +33,9 @@ class TestEventHandler:
         captured = capsys.readouterr()
         assert captured.out == "It went boom\n"
 
-    def test_event_handler_does_not_restrict_event_type(self, capsys) -> None:
+    def test_event_handler_does_not_restrict_event_type(
+        self, capsys: CaptureFixture[str]
+    ) -> None:
         """Remove responsibility from the handlers and allow duck typing.
 
         While this will not pass static type checking, the event type is not enforced
