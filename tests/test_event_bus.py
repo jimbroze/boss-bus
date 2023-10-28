@@ -5,30 +5,31 @@ from boss_bus.event_bus import EventHandler
 
 
 class ExplosionEvent(Event):
-    def get_event_data(self) -> str:
-        return "It went boom"
+    def print_event_data(self) -> None:
+        print("It went boom")
 
 
 class FloodEvent:
-    def get_event_data(self) -> str:
-        return "It got wet"
+    def print_event_data(self) -> None:
+        print("It got wet")
 
 
 class ExplosionEventHandler(EventHandler[ExplosionEvent]):
-    def handle(self, event: ExplosionEvent) -> str:
-        return event.get_event_data()
+    def handle(self, event: ExplosionEvent) -> None:
+        event.print_event_data()
 
 
 class TestEventHandler:
-    def test_event_handler_handles_a_valid_event(self) -> None:
+    def test_event_handler_handles_a_valid_event(self, capsys) -> None:
         event = ExplosionEvent()
         handler = ExplosionEventHandler()
 
-        result = handler.handle(event)
+        handler.handle(event)
 
-        assert result == "It went boom"
+        captured = capsys.readouterr()
+        assert captured.out == "It went boom\n"
 
-    def test_event_handler_does_not_restrict_event_type(self) -> None:
+    def test_event_handler_does_not_restrict_event_type(self, capsys) -> None:
         """Remove responsibility from the handlers and allow duck typing.
 
         While this will not pass static type checking, the event type is not enforced
@@ -38,6 +39,7 @@ class TestEventHandler:
         event = FloodEvent()
         handler = ExplosionEventHandler()
 
-        result = handler.handle(event)  # type: ignore
+        handler.handle(event)  # type: ignore
 
-        assert result == "It got wet"
+        captured = capsys.readouterr()
+        assert captured.out == "It got wet\n"

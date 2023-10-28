@@ -32,5 +32,5 @@ class EventHandler(IMessageHandler[EventType]):
 
     @abstractmethod
     def handle(self, event: EventType) -> Any:
-        """Dispatch a provided event."""
+        """Perform actions using a provided event."""
         raise NotImplementedError
