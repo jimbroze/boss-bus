@@ -2,32 +2,18 @@
 
 Classes:
 
-    IMessage
     IMessageHandler
 """
 
 from __future__ import annotations
 
-from abc import ABC
-from abc import abstractmethod
 from typing import Any
-from typing import Generic
-from typing import TypeVar
+from typing import Protocol
 
 
-class IMessage:
-    """A message that should be passed to a handler."""
+class IMessageHandler(Protocol):
+    """An interface that requires a handler method."""
 
-    pass
-
-
-MessageType = TypeVar("MessageType", bound=IMessage)
-
-
-class IMessageHandler(ABC, Generic[MessageType]):
-    """A message handler that handles messages."""
-
-    @abstractmethod
-    def handle(self, message: MessageType) -> Any:
-        """Perform actions using a provided message."""
-        raise NotImplementedError
+    def handle(self, message: Any) -> Any:
+        """Perform actions using a message."""
+        ...

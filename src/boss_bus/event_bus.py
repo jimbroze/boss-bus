@@ -10,27 +10,8 @@ Classes:
 
 from __future__ import annotations
 
-from abc import abstractmethod
-from typing import Any
-from typing import TypeVar
 
-from .interface import IMessage
-from .interface import IMessageHandler
-
-
-class Event(IMessage):
+class Event:
     """A form of message which handles events."""
 
     pass
-
-
-EventType = TypeVar("EventType", bound=Event)
-
-
-class EventHandler(IMessageHandler[EventType]):
-    """A form of message handler which performs operations using events."""
-
-    @abstractmethod
-    def handle(self, event: EventType) -> Any:
-        """Perform actions using a provided event."""
-        raise NotImplementedError

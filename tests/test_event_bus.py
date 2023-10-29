@@ -3,7 +3,7 @@ from __future__ import annotations
 from _pytest.capture import CaptureFixture
 
 from boss_bus.event_bus import Event
-from boss_bus.event_bus import EventHandler
+from boss_bus.interface import IMessageHandler
 
 
 class ExplosionEvent(Event):
@@ -16,7 +16,7 @@ class FloodEvent:
         print("It got wet")
 
 
-class ExplosionEventHandler(EventHandler[ExplosionEvent]):
+class ExplosionEventHandler(IMessageHandler):
     def handle(self, event: ExplosionEvent) -> None:
         event.print_event_data()
 
