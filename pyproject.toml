@@ -16,12 +16,12 @@ classifiers = [
 Changelog = "https://github.com/jimbroze/boss-bus/releases"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.8.1"
 click = ">=8.0.1"
 
 [tool.poetry.group.dev.dependencies]
 Pygments = ">=2.10.0"
-black = ">=21.10b0"
+black = ">=23.10.1"
 darglint = ">=1.8.1"
 ruff = ">=0.1"
 mypy = ">=0.930"
