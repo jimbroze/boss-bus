@@ -167,7 +167,7 @@ def coverage(session: Session) -> None:
     args = session.posargs or ["report"]
 
     session.install(".")
-    session.install("coverage[toml]")
+    session.install("distutils", "coverage[toml]")
 
     if not session.posargs and any(Path().glob(".coverage.*")):
         session.run("coverage", "combine")
