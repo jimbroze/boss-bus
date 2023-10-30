@@ -12,6 +12,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from typeguard import typechecked
+
 if TYPE_CHECKING:
     from boss_bus.interface import IMessageHandler
 
@@ -23,6 +25,7 @@ class Event:
 class EventBus:
     """Dispatches events to their associated handlers."""
 
+    @typechecked
     def dispatch(self, event: Event, handlers: list[IMessageHandler]) -> None:
         """Dispatch a provided event to the given handlers."""
         for handler in handlers:

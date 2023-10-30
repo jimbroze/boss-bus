@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import pytest
+from typeguard import TypeCheckError
+
 from boss_bus.event_bus import Event, EventBus
 from boss_bus.interface import IMessageHandler
 
@@ -24,6 +27,11 @@ class FloodEvent:
         print("It got wet")
 
 
+class AnyEventHandler(IMessageHandler):
+    def handle(self, event: Event) -> None:  # noqa: ARG002
+        print("Hi")
+
+
 class ExplosionEventHandler(IMessageHandler):
     def handle(self, event: ExplosionEvent) -> None:
         event.print_event_data()
@@ -36,7 +44,18 @@ class SecondExplosionEventHandler(IMessageHandler):
 
 
 class TestEventHandler:
-    def test_event_handler_handles_a_valid_event(
+    def test_non_specific_event_handler_can_handle_an_event(
+        self, capsys: CaptureFixture[str]
+    ) -> None:
+        event = ExplosionEvent()
+        handler = AnyEventHandler()
+
+        handler.handle(event)
+
+        captured = capsys.readouterr()
+        assert captured.out == "Hi\n"
+
+    def test_specific_event_handler_can_handle_a_valid_event(
         self, capsys: CaptureFixture[str]
     ) -> None:
         event = ExplosionEvent()
@@ -52,9 +71,10 @@ class TestEventHandler:
     ) -> None:
         """Remove responsibility from the handlers and allow duck typing.
 
-        While this will not pass static type checking, the event type is not enforced
-        at runtime. I may review this requirement in the future, particularly if
-        the interface of the Event class becomes more complex.
+        This will not pass static type checking but the event type is not enforced
+        by handlers at runtime. Specific handlers are created by users so it's
+        difficult to enforce type checking. Instead, this responsibility
+        is handled by the Event Bus.
         """
         event = FloodEvent()
         handler = ExplosionEventHandler()
@@ -66,14 +86,14 @@ class TestEventHandler:
 
 
 class TestEventBus:
-    def test_event_bus_handles_a_valid_event(self) -> None:
+    def test_event_bus_can_handle_a_non_specific_event(self) -> None:
         event = ExplosionEvent()
-        handler = ExplosionEventHandler()
+        handler = AnyEventHandler()
         bus = EventBus()
 
         bus.dispatch(event, [handler])
 
-    def test_event_bus_handles_a_valid_event_with_multiple_handlers(
+    def test_event_bus_can_handle_a_valid_event_with_multiple_handlers(
         self, capsys: CaptureFixture[str]
     ) -> None:
         event = ExplosionEvent()
@@ -86,9 +106,17 @@ class TestEventBus:
         captured = capsys.readouterr()
         assert captured.out == "It went boom\nIt went boom\nagain\n"
 
-    def test_event_bus_handles_event_subclasses(self) -> None:
+    def test_event_bus_can_handle_subclasses_of_a_valid_event(self) -> None:
         event = BigExplosionEvent()
         handler = ExplosionEventHandler()
         bus = EventBus()
 
         bus.dispatch(event, [handler])
+
+    def test_event_bus_will_not_handle_an_invalid_event(self) -> None:
+        event = FloodEvent()
+        handler = ExplosionEventHandler()
+        bus = EventBus()
+
+        with pytest.raises(TypeCheckError):
+            bus.dispatch(event, [handler])  # type: ignore
