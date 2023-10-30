@@ -84,18 +84,22 @@ pythonpath = ["src"]
 ignore = ["E501"]
 line-length = 80
 select = [
+    "A",
+    "ARG",
     "B",
+    "BLE",
     "B9",
     "C",
     "D",
     "E",
     "F",
     "N",
+    "S",
     "W",
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101", "D100", "D101", "D102", "D103"]
+"tests/*" = ["S101", "D100", "D101", "D102", "D103", "D104", "D205", "D212"]
 
 [tool.ruff.mccabe]
 max-complexity = 10
