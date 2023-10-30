@@ -1,7 +1,7 @@
 """Sphinx configuration."""
 project = "Boss Bus"
 author = "Jim Dickinson"
-copyright = "2023, Jim Dickinson"
+project_copyright = "2023, Jim Dickinson"
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
