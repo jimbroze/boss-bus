@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 from typeguard import TypeCheckError
 
-from boss_bus.event_bus import Event, EventBus
+from boss_bus.event_bus import Event, EventBus, MissingHandlerError
 from boss_bus.interface import IMessageHandler
 
 if TYPE_CHECKING:
@@ -120,3 +120,10 @@ class TestEventBus:
 
         with pytest.raises(TypeCheckError):
             bus.dispatch(event, [handler])  # type: ignore
+
+    def test_event_bus_will_throw_exception_if_handling_a_missing_handler(self) -> None:
+        event = ExplosionEvent()
+        bus = EventBus()
+
+        with pytest.raises(MissingHandlerError):
+            bus.dispatch(event, [])

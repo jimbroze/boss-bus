@@ -19,7 +19,11 @@ if TYPE_CHECKING:
 
 
 class Event:
-    """A form of message which handles events."""
+    """A form of message which can have multiple handlers."""
+
+
+class MissingHandlerError(Exception):
+    """An Event Handler has not been provided."""
 
 
 class EventBus:
@@ -28,5 +32,8 @@ class EventBus:
     @typechecked
     def dispatch(self, event: Event, handlers: list[IMessageHandler]) -> None:
         """Dispatch a provided event to the given handlers."""
-        for handler in handlers:
+        if len(handlers) == 0:
+            raise MissingHandlerError
+
+        for handler in handlers:  # pragma: no branch
             handler.handle(event)
