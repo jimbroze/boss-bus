@@ -21,8 +21,8 @@ except ImportError:
 
 
 package = "boss_bus"
-python_versions = ["3.11", "3.10", "3.9", "3.8"]
-nox.needs_version = ">= 2022.1.7"
+python_versions = ["3.12", "3.11", "3.10", "3.9", "3.8"]
+nox.needs_version = ">= 2023.04.22"
 nox.options.sessions = (
     "pre-commit",
     "safety",
@@ -166,6 +166,7 @@ def coverage(session: Session) -> None:
     """Produce the coverage report."""
     args = session.posargs or ["report"]
 
+    session.install(".")
     session.install("coverage[toml]")
 
     if not session.posargs and any(Path().glob(".coverage.*")):
