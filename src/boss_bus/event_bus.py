@@ -10,13 +10,14 @@ Classes:
 
 from __future__ import annotations
 
-from boss_bus.interface import IMessageHandler
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from boss_bus.interface import IMessageHandler
 
 
 class Event:
     """A form of message which handles events."""
-
-    pass
 
 
 class EventBus:

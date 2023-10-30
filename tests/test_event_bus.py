@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from _pytest.capture import CaptureFixture
+from typing import TYPE_CHECKING
 
-from boss_bus.event_bus import Event
-from boss_bus.event_bus import EventBus
+from boss_bus.event_bus import Event, EventBus
 from boss_bus.interface import IMessageHandler
+
+if TYPE_CHECKING:
+    from _pytest.capture import CaptureFixture
 
 
 class ExplosionEvent(Event):
