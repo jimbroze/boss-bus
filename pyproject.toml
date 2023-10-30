@@ -26,7 +26,6 @@ coverage = {extras = ["toml"], version = ">=6.2"}
 darglint = ">=1.8.1"
 ruff = ">=0.1"
 furo = ">=2021.11.12"
-isort = ">=5.10.1"
 mypy = ">=0.930"
 pep8-naming = ">=0.12.1"
 pre-commit = ">=2.16.0"
@@ -57,11 +56,6 @@ show_missing = true
 fail_under = 100
 ignore_errors = true
 
-[tool.isort]
-profile = "black"
-force_single_line = true
-lines_after_imports = 2
-
 [tool.mypy]
 strict = true
 warn_unreachable = true
@@ -80,6 +74,7 @@ markers = [
 pythonpath = ["src"]
 
 [tool.ruff]
+src = ['src', 'tests']
 line-length = 80
 
 [tool.ruff.lint]
@@ -93,6 +88,7 @@ select = [
     "D",
     "E",
     "F",
+    "I",
     "N",
     "S",
     "W",
