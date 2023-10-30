@@ -32,7 +32,6 @@ pep8-naming = ">=0.12.1"
 pre-commit = ">=2.16.0"
 pre-commit-hooks = ">=4.1.0"
 pytest = ">=6.2.5"
-pyupgrade = ">=2.29.1"
 safety = ">=1.10.3"
 sphinx = ">=4.3.2"
 sphinx-autobuild = ">=2021.3.14"
@@ -81,8 +80,9 @@ markers = [
 pythonpath = ["src"]
 
 [tool.ruff]
-ignore = ["E501"]
 line-length = 80
+
+[tool.ruff.lint]
 select = [
     "A",
     "ARG",
@@ -97,6 +97,10 @@ select = [
     "S",
     "W",
 ]
+extend-select = [
+    "UP",  # pyupgrade
+]
+ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "D100", "D101", "D102", "D103", "D104", "D205", "D212"]
