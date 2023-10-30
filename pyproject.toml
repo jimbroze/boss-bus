@@ -80,6 +80,7 @@ pythonpath = ["src"]
 [tool.ruff]
 src = ['src', 'tests']
 line-length = 80
+target-version = 'py38'
 
 [tool.ruff.lint]
 select = [
