@@ -23,6 +23,14 @@ class Event:
     """A form of message which can have multiple handlers."""
 
 
+class MissingEventError(Exception):
+    """The requested Error could not be found."""
+
+
+class MissingHandlerError(Exception):
+    """The requested Handler could not be found."""
+
+
 class EventBus:
     """Dispatches events to their associated handlers."""
 
@@ -39,6 +47,32 @@ class EventBus:
             raise TypeError("add_handlers() requires at least one handler")
 
         self._handlers[event_type].extend(handlers)
+
+    @typechecked
+    def remove_handlers(
+        self,
+        event_type: Type[Event],  # noqa: UP006
+        handlers: list[IMessageHandler] | None = None,
+    ) -> None:
+        """Remove previously registered handlers."""
+        if handlers is None:
+            handlers = []
+
+        if event_type not in self._handlers:
+            raise MissingEventError(f"The event '{event_type}' has not been registered")
+
+        for handler in handlers:
+            if handler not in self._handlers[event_type]:
+                raise MissingHandlerError(
+                    f"The handler '{handler}' has not been registered for event '{event_type}'"
+                )
+
+            self._handlers[event_type].remove(handler)
+
+        if (  # pragma: no branch
+            len(handlers) == 0 or len(self._handlers[event_type]) == 0
+        ):
+            del self._handlers[event_type]
 
     @typechecked
     def dispatch(
