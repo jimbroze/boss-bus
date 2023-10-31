@@ -17,11 +17,6 @@ class ExplosionEvent(Event):
         print("It went boom")
 
 
-class BigExplosionEvent(ExplosionEvent):
-    def print_event_data(self) -> None:
-        print("It went boom")
-
-
 class FloodEvent:
     def print_event_data(self) -> None:
         print("It got wet")
@@ -72,7 +67,7 @@ class TestEventHandler:
         """Remove responsibility from the handlers and allow duck typing.
 
         This will not pass static type checking but the event type is not enforced
-        by handlers at runtime. Specific handlers are created by users so it's
+        by handlers at runtime. Specific handlers are created by users, so it's
         difficult to enforce type checking. Instead, this responsibility
         is handled by the Event Bus.
         """
@@ -105,13 +100,6 @@ class TestEventBus:
 
         captured = capsys.readouterr()
         assert captured.out == "It went boom\nIt went boom\nagain\n"
-
-    def test_event_bus_can_dispatch_subclasses_of_a_valid_event(self) -> None:
-        event = BigExplosionEvent()
-        handler = ExplosionEventHandler()
-        bus = EventBus()
-
-        bus.dispatch(event, [handler])
 
     def test_event_bus_will_not_dispatch_an_invalid_event(self) -> None:
         event = FloodEvent()
@@ -174,10 +162,12 @@ class TestEventBus:
         handler1 = ExplosionEventHandler()
         bus = EventBus()
 
-        with pytest.raises(TypeError) as e:
+        with pytest.raises(TypeCheckError):
             bus.add_handlers(event, [handler1])  # type: ignore
 
-        assert str(e.value) == (
-            "event_type passed to add_handlers must be a "
-            "type. Got '<class 'tests.test_event_bus.ExplosionEvent'>"
-        )
+    def test_add_handlers_will_not_register_an_invalid_event_and_handler(self) -> None:
+        handler = ExplosionEventHandler()
+        bus = EventBus()
+
+        with pytest.raises(TypeCheckError):
+            bus.add_handlers(FloodEvent, [handler])  # type: ignore

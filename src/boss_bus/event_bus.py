@@ -11,7 +11,7 @@ Classes:
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 from typeguard import typechecked
 
@@ -30,15 +30,11 @@ class EventBus:
         """Creates an Event Bus."""
         self._handlers: dict[type[Event], list[IMessageHandler]] = defaultdict(list)
 
+    @typechecked
     def add_handlers(
-        self, event_type: type[Event], handlers: list[IMessageHandler]
+        self, event_type: Type[Event], handlers: list[IMessageHandler]  # noqa: UP006
     ) -> None:
         """Register handlers that will dispatch a type of Event."""
-        if not isinstance(event_type, type):
-            raise TypeError(
-                f"event_type passed to add_handlers must be a type. Got '{type(event_type)}"
-            )
-
         if len(handlers) == 0:
             raise TypeError("add_handlers() requires at least one handler")
 
