@@ -81,14 +81,14 @@ class TestEventHandler:
 
 
 class TestEventBus:
-    def test_event_bus_can_dispatch_a_non_specific_event(self) -> None:
+    def test_dispatch_accepts_a_non_specific_event(self) -> None:
         event = ExplosionEvent()
         handler = AnyEventHandler()
         bus = EventBus()
 
         bus.dispatch(event, [handler])
 
-    def test_event_bus_can_dispatch_a_valid_event_with_multiple_handlers(
+    def test_dispatch_accepts_multiple_handlers(
         self, capsys: CaptureFixture[str]
     ) -> None:
         event = ExplosionEvent()
@@ -101,7 +101,7 @@ class TestEventBus:
         captured = capsys.readouterr()
         assert captured.out == "It went boom\nIt went boom\nagain\n"
 
-    def test_event_bus_will_not_dispatch_an_invalid_event(self) -> None:
+    def test_dispatch_will_not_accept_an_invalid_event(self) -> None:
         event = FloodEvent()
         handler = ExplosionEventHandler()
         bus = EventBus()
@@ -109,7 +109,7 @@ class TestEventBus:
         with pytest.raises(TypeCheckError):
             bus.dispatch(event, [handler])  # type: ignore
 
-    def test_event_bus_will_not_throw_exception_if_dispatching_an_event_with_no_handlers(
+    def test_dispatch_will_not_throw_exception_if_dispatching_an_event_with_no_handlers(
         self,
     ) -> None:
         event = ExplosionEvent()
@@ -117,7 +117,7 @@ class TestEventBus:
 
         bus.dispatch(event, [])
 
-    def test_event_bus_can_dispatch_events_previously_registered(
+    def test_dispatch_uses_previously_registered_events(
         self, capsys: CaptureFixture[str]
     ) -> None:
         event = ExplosionEvent()
@@ -132,7 +132,7 @@ class TestEventBus:
         captured = capsys.readouterr()
         assert captured.out == "It went boom\nIt went boom\nagain\n"
 
-    def test_event_bus_can_combine_registered_and_passed_events(
+    def test_dispatch_combines_registered_and_passed_events(
         self, capsys: CaptureFixture[str]
     ) -> None:
         event = ExplosionEvent()
