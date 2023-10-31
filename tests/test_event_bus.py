@@ -168,3 +168,16 @@ class TestEventBus:
             bus.add_handlers(ExplosionEvent, [])
 
         assert str(e.value) == "add_handlers() requires at least one handler"
+
+    def test_add_handlers_require_event_type_to_be_a_type(self) -> None:
+        event = ExplosionEvent()
+        handler1 = ExplosionEventHandler()
+        bus = EventBus()
+
+        with pytest.raises(TypeError) as e:
+            bus.add_handlers(event, [handler1])  # type: ignore
+
+        assert str(e.value) == (
+            "event_type passed to add_handlers must be a "
+            "type. Got '<class 'tests.test_event_bus.ExplosionEvent'>"
+        )

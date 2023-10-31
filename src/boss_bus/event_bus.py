@@ -34,6 +34,11 @@ class EventBus:
         self, event_type: type[Event], handlers: list[IMessageHandler]
     ) -> None:
         """Register handlers that will dispatch a type of Event."""
+        if not isinstance(event_type, type):
+            raise TypeError(
+                f"event_type passed to add_handlers must be a type. Got '{type(event_type)}"
+            )
+
         if len(handlers) == 0:
             raise TypeError("add_handlers() requires at least one handler")
 
