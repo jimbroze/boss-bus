@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 from typeguard import TypeCheckError
 
-from boss_bus.event_bus import Event, EventBus, MissingHandlerError
+from boss_bus.event_bus import Event, EventBus
 from boss_bus.interface import IMessageHandler
 
 if TYPE_CHECKING:
@@ -86,14 +86,14 @@ class TestEventHandler:
 
 
 class TestEventBus:
-    def test_event_bus_can_handle_a_non_specific_event(self) -> None:
+    def test_event_bus_can_dispatch_a_non_specific_event(self) -> None:
         event = ExplosionEvent()
         handler = AnyEventHandler()
         bus = EventBus()
 
         bus.dispatch(event, [handler])
 
-    def test_event_bus_can_handle_a_valid_event_with_multiple_handlers(
+    def test_event_bus_can_dispatch_a_valid_event_with_multiple_handlers(
         self, capsys: CaptureFixture[str]
     ) -> None:
         event = ExplosionEvent()
@@ -106,14 +106,14 @@ class TestEventBus:
         captured = capsys.readouterr()
         assert captured.out == "It went boom\nIt went boom\nagain\n"
 
-    def test_event_bus_can_handle_subclasses_of_a_valid_event(self) -> None:
+    def test_event_bus_can_dispatch_subclasses_of_a_valid_event(self) -> None:
         event = BigExplosionEvent()
         handler = ExplosionEventHandler()
         bus = EventBus()
 
         bus.dispatch(event, [handler])
 
-    def test_event_bus_will_not_handle_an_invalid_event(self) -> None:
+    def test_event_bus_will_not_dispatch_an_invalid_event(self) -> None:
         event = FloodEvent()
         handler = ExplosionEventHandler()
         bus = EventBus()
@@ -121,9 +121,50 @@ class TestEventBus:
         with pytest.raises(TypeCheckError):
             bus.dispatch(event, [handler])  # type: ignore
 
-    def test_event_bus_will_throw_exception_if_handling_a_missing_handler(self) -> None:
+    def test_event_bus_will_not_throw_exception_if_dispatching_an_event_with_no_handlers(
+        self,
+    ) -> None:
         event = ExplosionEvent()
         bus = EventBus()
 
-        with pytest.raises(MissingHandlerError):
-            bus.dispatch(event, [])
+        bus.dispatch(event, [])
+
+    def test_event_bus_can_dispatch_events_previously_registered(
+        self, capsys: CaptureFixture[str]
+    ) -> None:
+        event = ExplosionEvent()
+        handler1 = ExplosionEventHandler()
+        handler2 = SecondExplosionEventHandler()
+        bus = EventBus()
+
+        bus.add_handlers(ExplosionEvent, [handler1, handler2])
+
+        bus.dispatch(event)
+
+        captured = capsys.readouterr()
+        assert captured.out == "It went boom\nIt went boom\nagain\n"
+
+    def test_event_bus_can_combine_registered_and_passed_events(
+        self, capsys: CaptureFixture[str]
+    ) -> None:
+        event = ExplosionEvent()
+        handler1 = ExplosionEventHandler()
+        handler2 = SecondExplosionEventHandler()
+        bus = EventBus()
+
+        bus.add_handlers(ExplosionEvent, [handler1, handler2])
+
+        handler3 = AnyEventHandler()
+
+        bus.dispatch(event, [handler3])
+
+        captured = capsys.readouterr()
+        assert captured.out == "Hi\nIt went boom\nIt went boom\nagain\n"
+
+    def test_add_handlers_require_handlers_to_be_provided(self) -> None:
+        bus = EventBus()
+
+        with pytest.raises(TypeError) as e:
+            bus.add_handlers(ExplosionEvent, [])
+
+        assert str(e.value) == "add_handlers() requires at least one handler"
