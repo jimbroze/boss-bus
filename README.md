@@ -58,6 +58,7 @@ please [file an issue] along with a detailed description.
 
 ## Credits
 
+Created by [@jimbroze].
 This project was generated from [@cjolowicz]'s [Hypermodern Python Cookiecutter] template.
 
 [@cjolowicz]: https://github.com/cjolowicz
