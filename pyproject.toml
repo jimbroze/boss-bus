@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "boss-bus"
 version = "0.0.0"
-description = "Boss Bus"
+description = "A Type-driven Message Bus for Python 3.8+"
 authors = ["Jim Dickinson <james.n.dickinson@gmail.com>"]
 license = "GPL-3.0"
 readme = "README.md"
