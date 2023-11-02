@@ -62,7 +62,7 @@ class EventBus:
         for handler in handlers:
             if handler not in self._handlers[event_type]:
                 raise MissingHandlerError(
-                    f"The handler '{handler}' has not been registered for event '{event_type}'"
+                    f"The handler '{handler}' has not been registered for event '{event_type.__name__}'"
                 )
 
             self._handlers[event_type].remove(handler)
