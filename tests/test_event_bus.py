@@ -9,8 +9,8 @@ from boss_bus.event_bus import (
     Event,
     EventBus,
     MissingEventError,
-    MissingHandlerError,
 )
+from boss_bus.handler import MissingHandlerError
 from boss_bus.interface import IMessageHandler
 
 if TYPE_CHECKING:
