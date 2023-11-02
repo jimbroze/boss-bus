@@ -15,6 +15,8 @@ from typing import TYPE_CHECKING, Type
 
 from typeguard import typechecked
 
+from boss_bus.handler import MissingHandlerError
+
 if TYPE_CHECKING:
     from boss_bus.interface import IMessageHandler
 
@@ -25,10 +27,6 @@ class Event:
 
 class MissingEventError(Exception):
     """The requested Error could not be found."""
-
-
-class MissingHandlerError(Exception):
-    """The requested Handler could not be found."""
 
 
 class EventBus:
