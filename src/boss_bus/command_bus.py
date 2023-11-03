@@ -50,7 +50,9 @@ def _validate_handler(
         command_type.__name__
         != signature(handler.handle).parameters["command"].annotation
     ):
-        raise InvalidHandlerError
+        raise InvalidHandlerError(
+            f"The handler '{handler}' does not match the command '{command_type.__name__}'"
+        )
 
 
 class CommandBus:
@@ -70,6 +72,19 @@ class CommandBus:
         _validate_handler(command_type, handler)
 
         self._handlers[command_type] = handler
+
+    @typechecked
+    def remove_handler(
+        self,
+        command_type: Type[SpecificCommand],  # noqa: UP006
+    ) -> None:
+        """Remove a previously registered handler."""
+        if command_type not in self._handlers:
+            raise MissingHandlerError(
+                f"A handler has not been registered for the command '{command_type.__name__}'"
+            )
+
+        del self._handlers[command_type]
 
     @typechecked
     def execute(

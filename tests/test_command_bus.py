@@ -143,3 +143,24 @@ class TestCommandBus:
 
         with pytest.raises(TypeCheckError):
             bus.register_handler(command, [handler1, handler2])  # type: ignore[arg-type]
+
+    def test_remove_handler_removes_handler_for_a_given_command_and_deletes_key(
+        self,
+    ) -> None:
+        handler = ExplosionCommandHandler()
+        bus = CommandBus()
+
+        bus.register_handler(ExplosionCommand, handler)
+        assert ExplosionCommand in bus._handlers  # noqa: SLF001
+
+        bus.remove_handler(ExplosionCommand)
+
+        assert ExplosionCommand not in bus._handlers  # noqa: SLF001
+
+    def test_remove_handler_throws_exception_if_command_is_not_registered(
+        self,
+    ) -> None:
+        bus = CommandBus()
+
+        with pytest.raises(MissingHandlerError):
+            bus.remove_handler(ExplosionCommand)
