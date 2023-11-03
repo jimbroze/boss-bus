@@ -144,6 +144,12 @@ class TestCommandBus:
         with pytest.raises(TypeCheckError):
             bus.register_handler(command, [handler1, handler2])  # type: ignore[arg-type]
 
+    def test_register_handler_will_not_register_an_uninstantiated_handler(self) -> None:
+        bus = CommandBus()
+
+        with pytest.raises(TypeCheckError):
+            bus.register_handler(ExplosionCommand, [ExplosionCommandHandler])  # type: ignore[arg-type]
+
     def test_remove_handler_removes_handler_for_a_given_command_and_deletes_key(
         self,
     ) -> None:

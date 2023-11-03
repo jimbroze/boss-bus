@@ -30,7 +30,7 @@ class AnyEventHandler(IMessageHandler):
         print("Hi")
 
 
-class ExplosionEventHandler(IMessageHandler):
+class ExplosionEventHandler:
     def handle(self, event: ExplosionEvent) -> None:
         event.print_event_data()
 
@@ -150,6 +150,12 @@ class TestEventBus:
 
         with pytest.raises(TypeCheckError):
             bus.add_handlers(FloodEvent, [handler])  # type: ignore[arg-type]
+
+    def test_add_handers_will_not_register_an_uninstantiated_handler(self) -> None:
+        bus = EventBus()
+
+        with pytest.raises(TypeError):
+            bus.add_handlers(ExplosionEvent, [ExplosionEventHandler])  # type: ignore[list-item]
 
     def test_remove_handlers_can_remove_all_handlers(self) -> None:
         handler1 = ExplosionEventHandler()

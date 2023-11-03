@@ -11,14 +11,12 @@ Classes:
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TYPE_CHECKING, Sequence, Type
+from typing import Any, Sequence, Type
 
 from typeguard import typechecked
 
 from boss_bus.handler import MissingHandlerError
-
-if TYPE_CHECKING:
-    from boss_bus.interface import IMessageHandler
+from boss_bus.interface import IMessageHandler
 
 
 class Event:
@@ -27,6 +25,11 @@ class Event:
 
 class MissingEventError(Exception):
     """The requested Error could not be found."""
+
+
+def _validate_handler(handler: Any) -> None:
+    if not isinstance(handler, IMessageHandler) or isinstance(handler, type):
+        raise TypeError(f"'handlers' must be an instance of {IMessageHandler.__name__}")
 
 
 class EventBus:
@@ -53,11 +56,24 @@ class EventBus:
         event_type: Type[Event],  # noqa: UP006
         handlers: Sequence[IMessageHandler],
     ) -> None:
-        """Register handlers that will dispatch a type of Event."""
+        """Register handlers that will dispatch a type of Event.
+
+        Example:
+            >>> from tests.examples import TestEvent, TestEventHandler
+            >>> bus = EventBus()
+            >>> handler = TestEventHandler()
+            >>> event = TestEvent("Testing...")
+            >>>
+            >>> bus.add_handlers(TestEvent, [handler])
+            >>> bus.
+            Testing...
+        """
         if len(handlers) == 0:
             raise TypeError("add_handlers() requires at least one handler")
 
-        self._handlers[event_type].extend(handlers)
+        for handler in handlers:  # pragma: no branch
+            _validate_handler(handler)
+            self._handlers[event_type].append(handler)
 
     @typechecked
     def remove_handlers(
@@ -70,6 +86,8 @@ class EventBus:
             handlers = []
 
         for handler in handlers:
+            _validate_handler(handler)
+
             if handler not in self._handlers[event_type]:
                 raise MissingHandlerError(
                     f"The handler '{handler}' has not been registered for event '{event_type.__name__}'"
