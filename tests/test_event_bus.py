@@ -10,7 +10,7 @@ from boss_bus.event_bus import (
     EventBus,
 )
 from boss_bus.handler import MissingHandlerError
-from boss_bus.interface import IMessageHandler
+from boss_bus.interface import SupportsHandle
 
 if TYPE_CHECKING:
     from _pytest.capture import CaptureFixture
@@ -25,7 +25,7 @@ class FloodEvent:
     pass
 
 
-class AnyEventHandler(IMessageHandler):
+class AnyEventHandler(SupportsHandle):
     def handle(self, event: Event) -> None:  # noqa: ARG002
         print("Hi")
 
@@ -35,7 +35,7 @@ class ExplosionEventHandler:
         event.print_event_data()
 
 
-class SecondExplosionEventHandler(IMessageHandler):
+class SecondExplosionEventHandler(SupportsHandle):
     def handle(self, event: ExplosionEvent) -> None:
         event.print_event_data()
         print("again")

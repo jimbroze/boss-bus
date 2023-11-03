@@ -16,7 +16,7 @@ from typing import Any, Sequence, Type
 from typeguard import typechecked
 
 from boss_bus.handler import MissingHandlerError
-from boss_bus.interface import IMessageHandler
+from boss_bus.interface import SupportsHandle
 
 
 class Event:
@@ -29,7 +29,7 @@ class MissingEventError(Exception):
 
 def _validate_handler(handler: Any) -> None:
     if isinstance(handler, type):
-        raise TypeError(f"'handlers' must be an instance of {IMessageHandler.__name__}")
+        raise TypeError(f"'handlers' must be an instance of {SupportsHandle.__name__}")
 
 
 class EventBus:
@@ -48,13 +48,13 @@ class EventBus:
 
     def __init__(self) -> None:
         """Creates an Event Bus."""
-        self._handlers: dict[type[Event], list[IMessageHandler]] = defaultdict(list)
+        self._handlers: dict[type[Event], list[SupportsHandle]] = defaultdict(list)
 
     @typechecked
     def add_handlers(
         self,
         event_type: Type[Event],  # noqa: UP006
-        handlers: Sequence[IMessageHandler],
+        handlers: Sequence[SupportsHandle],
     ) -> None:
         """Register handlers that will dispatch a type of Event.
 
@@ -79,7 +79,7 @@ class EventBus:
     def remove_handlers(
         self,
         event_type: Type[Event],  # noqa: UP006
-        handlers: Sequence[IMessageHandler] | None = None,
+        handlers: Sequence[SupportsHandle] | None = None,
     ) -> None:
         """Remove previously registered handlers."""
         if handlers is None:
@@ -100,7 +100,7 @@ class EventBus:
 
     @typechecked
     def dispatch(
-        self, event: Event, handlers: Sequence[IMessageHandler] | None = None
+        self, event: Event, handlers: Sequence[SupportsHandle] | None = None
     ) -> None:
         """Dispatch events to their handlers.
 

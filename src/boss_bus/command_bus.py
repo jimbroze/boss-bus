@@ -17,7 +17,7 @@ from typing import Any, Generic, Type, TypeVar
 from typeguard import typechecked
 
 from boss_bus.handler import MissingHandlerError
-from boss_bus.interface import IMessageHandler
+from boss_bus.interface import SupportsHandle
 
 
 class Command:
@@ -27,7 +27,7 @@ class Command:
 SpecificCommand = TypeVar("SpecificCommand", bound=Command)
 
 
-class CommandHandler(ABC, IMessageHandler, Generic[SpecificCommand]):
+class CommandHandler(ABC, SupportsHandle, Generic[SpecificCommand]):
     """A form of message which only has one handler."""
 
     @abstractmethod

@@ -11,7 +11,7 @@ from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable
-class IMessageHandler(Protocol):
+class SupportsHandle(Protocol):
     """An interface that requires a handler method."""
 
     def handle(self, message: Any) -> Any:

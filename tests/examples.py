@@ -1,5 +1,5 @@
 from boss_bus.event_bus import Event
-from boss_bus.interface import IMessageHandler
+from boss_bus.interface import SupportsHandle
 
 
 class TestEvent(Event):
@@ -13,7 +13,7 @@ class TestEvent(Event):
         print(self.event_data)
 
 
-class TestEventHandler(IMessageHandler):
+class TestEventHandler(SupportsHandle):
     """An event handler purely for use in tests."""
 
     def handle(self, event: TestEvent) -> None:
