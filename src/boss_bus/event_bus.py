@@ -56,18 +56,7 @@ class EventBus:
         event_type: Type[Event],  # noqa: UP006
         handlers: Sequence[SupportsHandle],
     ) -> None:
-        """Register handlers that will dispatch a type of Event.
-
-        Example:
-            >>> from tests.examples import TestEvent, TestEventHandler
-            >>> bus = EventBus()
-            >>> handler = TestEventHandler()
-            >>> event = TestEvent("Testing...")
-            >>>
-            >>> bus.add_handlers(TestEvent, [handler])
-            >>> bus.
-            Testing...
-        """
+        """Register handlers that will dispatch a type of Event."""
         if len(handlers) == 0:
             raise TypeError("add_handlers() requires at least one handler")
 
