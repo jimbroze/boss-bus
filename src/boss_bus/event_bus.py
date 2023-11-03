@@ -28,7 +28,7 @@ class MissingEventError(Exception):
 
 
 def _validate_handler(handler: Any) -> None:
-    if not isinstance(handler, IMessageHandler) or isinstance(handler, type):
+    if isinstance(handler, type):
         raise TypeError(f"'handlers' must be an instance of {IMessageHandler.__name__}")
 
 
