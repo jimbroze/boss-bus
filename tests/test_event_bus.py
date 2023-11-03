@@ -8,7 +8,6 @@ from typeguard import TypeCheckError
 from boss_bus.event_bus import (
     Event,
     EventBus,
-    MissingEventError,
 )
 from boss_bus.handler import MissingHandlerError
 from boss_bus.interface import IMessageHandler
@@ -160,7 +159,7 @@ class TestEventBus:
 
         bus.remove_handlers(ExplosionEvent)
 
-        assert ExplosionEvent not in bus._handlers  # noqa: SLF001
+        assert not bus._handlers.get(ExplosionEvent)  # noqa: SLF001
 
     def test_remove_handlers_can_remove_specific_handlers(self) -> None:
         handler1 = ExplosionEventHandler()
@@ -173,19 +172,6 @@ class TestEventBus:
 
         assert ExplosionEvent in bus._handlers  # noqa: SLF001
         assert len(bus._handlers[ExplosionEvent]) == 1  # noqa: SLF001
-
-    def test_remove_handlers_deletes_event_key_if_all_handlers_are_removed_specifically(
-        self,
-    ) -> None:
-        handler1 = ExplosionEventHandler()
-        handler2 = SecondExplosionEventHandler()
-        bus = EventBus()
-
-        bus.add_handlers(ExplosionEvent, [handler1, handler2])
-
-        bus.remove_handlers(ExplosionEvent, [handler1, handler2])
-
-        assert ExplosionEvent not in bus._handlers  # noqa: SLF001
 
     def test_remove_handlers_will_not_accept_an_invalid_event_and_handler(self) -> None:
         handler = ExplosionEventHandler()
@@ -208,9 +194,9 @@ class TestEventBus:
         with pytest.raises(MissingHandlerError):
             bus.remove_handlers(ExplosionEvent, [handler2])
 
-    def test_remove_handlers_throws_exception_if_event_is_not_registered(self) -> None:
-        handler = ExplosionEventHandler()
+    def test_remove_handlers_does_not_throw_exception_if_event_is_not_registered(
+        self,
+    ) -> None:
         bus = EventBus()
 
-        with pytest.raises(MissingEventError):
-            bus.remove_handlers(ExplosionEvent, [handler])
+        bus.remove_handlers(ExplosionEvent)

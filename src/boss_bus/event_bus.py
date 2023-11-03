@@ -58,9 +58,6 @@ class EventBus:
         if handlers is None:
             handlers = []
 
-        if event_type not in self._handlers:
-            raise MissingEventError(f"The event '{event_type}' has not been registered")
-
         for handler in handlers:
             if handler not in self._handlers[event_type]:
                 raise MissingHandlerError(
@@ -69,10 +66,8 @@ class EventBus:
 
             self._handlers[event_type].remove(handler)
 
-        if (  # pragma: no branch
-            len(handlers) == 0 or len(self._handlers[event_type]) == 0
-        ):
-            del self._handlers[event_type]
+        if len(handlers) == 0:  # pragma: no branch
+            self._handlers[event_type] = []
 
     @typechecked
     def dispatch(
