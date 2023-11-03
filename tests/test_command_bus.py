@@ -8,10 +8,11 @@ from typeguard import TypeCheckError
 from boss_bus.command_bus import (
     Command,
     CommandBus,
+    CommandHandler,
+    InvalidHandlerError,
     TooManyHandlersError,
 )
 from boss_bus.handler import MissingHandlerError
-from boss_bus.interface import IMessageHandler
 
 if TYPE_CHECKING:
     from _pytest.capture import CaptureFixture
@@ -22,24 +23,23 @@ class ExplosionCommand(Command):
         print("It went boom")
 
 
-class FloodCommand:
+class FloodCommand(Command):
     pass
 
 
-class AnyCommandHandler(IMessageHandler):
-    def handle(self, command: Command) -> None:  # noqa: ARG002
-        print("Hi")
+class AnyCommandHandler(CommandHandler[Command]):
+    def handle(self, command: Command) -> None:
+        pass
 
 
-class ExplosionCommandHandler(IMessageHandler):
+class ExplosionCommandHandler(CommandHandler[ExplosionCommand]):
     def handle(self, command: ExplosionCommand) -> None:
         command.print_command_data()
 
 
-class SecondExplosionCommandHandler(IMessageHandler):
+class SecondExplosionCommandHandler(CommandHandler[ExplosionCommand]):
     def handle(self, command: ExplosionCommand) -> None:
-        command.print_command_data()
-        print("again")
+        pass
 
 
 class TestCommandBus:
@@ -50,20 +50,21 @@ class TestCommandBus:
 
         bus.execute(command, handler)
 
-    # def test_execute_does_not_accept_a_non_specific_command(self) -> None:
-    #     command = ExplosionCommand()
-    #     handler = AnyCommandHandler()
-    #     bus = CommandBus()
-    #
-    #     with pytest.raises(Exception):
-    #         bus.execute(command, handler)
+    # noinspection PyTypeChecker
+    def test_execute_does_not_accept_a_non_specific_command(self) -> None:
+        command = ExplosionCommand()
+        handler = AnyCommandHandler()
+        bus = CommandBus()
 
-    def test_execute_does_not_accept_an_invalid_command(self) -> None:
+        with pytest.raises(InvalidHandlerError):
+            bus.execute(command, handler)
+
+    def test_execute_does_not_accept_an_invalid_handler_for_the_command(self) -> None:
         command = FloodCommand()
         handler = ExplosionCommandHandler()
         bus = CommandBus()
 
-        with pytest.raises(TypeCheckError):
+        with pytest.raises(InvalidHandlerError):
             bus.execute(command, handler)  # type: ignore
 
     def test_execute_does_not_accept_multiple_handlers(self) -> None:
@@ -72,7 +73,7 @@ class TestCommandBus:
         handler2 = SecondExplosionCommandHandler()
         bus = CommandBus()
 
-        with pytest.raises(TooManyHandlersError):
+        with pytest.raises(TypeCheckError):
             bus.execute(command, [handler1, handler2])  # type: ignore
 
     def test_execute_cannot_execute_a_command_with_no_handlers(
@@ -125,11 +126,20 @@ class TestCommandBus:
         with pytest.raises(TypeCheckError):
             bus.register_handler(command, handler1)  # type: ignore
 
-    def test_register_handler_will_not_register_an_invalid_command_for_the_handler(
+    def test_register_handler_will_not_register_an_invalid_handler_for_the_command(
         self,
     ) -> None:
         handler = ExplosionCommandHandler()
         bus = CommandBus()
 
-        with pytest.raises(TypeCheckError):
+        with pytest.raises(InvalidHandlerError):
             bus.register_handler(FloodCommand, handler)  # type: ignore
+
+    def test_register_handler_will_not_accept_multiple_handlers(self) -> None:
+        command = ExplosionCommand()
+        handler1 = ExplosionCommandHandler()
+        handler2 = SecondExplosionCommandHandler()
+        bus = CommandBus()
+
+        with pytest.raises(TypeCheckError):
+            bus.register_handler(command, [handler1, handler2])  # type: ignore

@@ -10,26 +10,47 @@ Classes:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from abc import ABC, abstractmethod
+from inspect import signature
+from typing import Any, Generic, Type, TypeVar
 
 from typeguard import typechecked
 
 from boss_bus.handler import MissingHandlerError
-
-if TYPE_CHECKING:
-    from boss_bus.interface import IMessageHandler
+from boss_bus.interface import IMessageHandler
 
 
 class Command:
     """A form of message which only has one handler."""
 
 
-class MissingCommandError(Exception):
-    """The requested Error could not be found."""
+SpecificCommand = TypeVar("SpecificCommand", bound=Command)
+
+
+class CommandHandler(ABC, IMessageHandler, Generic[SpecificCommand]):
+    """A form of message which only has one handler."""
+
+    @abstractmethod
+    def handle(self, command: SpecificCommand) -> None:
+        """Perform actions using a specific command."""
 
 
 class TooManyHandlersError(Exception):
     """Only one handler can be used with a command."""
+
+
+class InvalidHandlerError(Exception):
+    """The handler does not match the command."""
+
+
+def _validate_handler(
+    command_type: type[Command], handler: CommandHandler[Any]
+) -> None:
+    if (
+        command_type.__name__
+        != signature(handler.handle).parameters["command"].annotation
+    ):
+        raise InvalidHandlerError
 
 
 class CommandBus:
@@ -37,22 +58,29 @@ class CommandBus:
 
     def __init__(self) -> None:
         """Creates a Command Bus."""
-        self._handlers: dict[type[Command], IMessageHandler] = {}
+        self._handlers: dict[type[Command], CommandHandler[Any]] = {}
 
     @typechecked
     def register_handler(
         self,
-        command_type: Type[Command],  # noqa: UP006
-        handler: IMessageHandler,
+        command_type: Type[SpecificCommand],  # noqa: UP006
+        handler: CommandHandler[SpecificCommand],
     ) -> None:
         """Register a single handler that will execute a type of Command."""
+        _validate_handler(command_type, handler)
+
         self._handlers[command_type] = handler
 
     @typechecked
-    def execute(self, command: Command, handler: IMessageHandler | None = None) -> None:
+    def execute(
+        self,
+        command: SpecificCommand,
+        handler: CommandHandler[SpecificCommand] | None = None,
+    ) -> None:
         """Execute a provided command using its handler."""
-        if hasattr(handler, "__iter__"):
-            raise TooManyHandlersError("Only one handler can execute a command")
+        # print(check_type(handler, CommandHandler[SpecificCommand]))
+        if handler:
+            _validate_handler(type(command), handler)
 
         matched_handler = self._handlers.get(type(command), handler)
 
