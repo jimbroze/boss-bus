@@ -43,14 +43,19 @@ class SecondExplosionEventHandler(IMessageHandler):
 
 
 class TestEventBus:
-    def test_dispatch_accepts_a_non_specific_event(self) -> None:
+    def test_dispatch_accepts_a_non_specific_event(
+        self, capsys: CaptureFixture[str]
+    ) -> None:
         event = ExplosionEvent()
         handler = AnyEventHandler()
         bus = EventBus()
 
         bus.dispatch(event, [handler])
 
-    def test_dispatch_accepts_multiple_handlers(
+        captured = capsys.readouterr()
+        assert captured.out == "Hi\n"
+
+    def test_dispatch_accepts_a_list_of_handlers(
         self, capsys: CaptureFixture[str]
     ) -> None:
         event = ExplosionEvent()
@@ -59,6 +64,19 @@ class TestEventBus:
         bus = EventBus()
 
         bus.dispatch(event, [handler1, handler2])
+
+        captured = capsys.readouterr()
+        assert captured.out == "It went boom\nIt went boom\nagain\n"
+
+    def test_dispatch_accepts_a_tuple_of_handlers(
+        self, capsys: CaptureFixture[str]
+    ) -> None:
+        event = ExplosionEvent()
+        handler1 = ExplosionEventHandler()
+        handler2 = SecondExplosionEventHandler()
+        bus = EventBus()
+
+        bus.dispatch(event, (handler1, handler2))
 
         captured = capsys.readouterr()
         assert captured.out == "It went boom\nIt went boom\nagain\n"
@@ -109,7 +127,7 @@ class TestEventBus:
         bus.dispatch(event, [handler3])
 
         captured = capsys.readouterr()
-        assert captured.out == "Hi\nIt went boom\nIt went boom\nagain\n"
+        assert captured.out == "It went boom\nIt went boom\nagain\nHi\n"
 
     def test_add_handlers_requires_handlers_to_be_provided(self) -> None:
         bus = EventBus()

@@ -11,7 +11,7 @@ Classes:
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Sequence, Type
 
 from typeguard import typechecked
 
@@ -38,7 +38,9 @@ class EventBus:
 
     @typechecked
     def add_handlers(
-        self, event_type: Type[Event], handlers: list[IMessageHandler]  # noqa: UP006
+        self,
+        event_type: Type[Event],  # noqa: UP006
+        handlers: Sequence[IMessageHandler],
     ) -> None:
         """Register handlers that will dispatch a type of Event."""
         if len(handlers) == 0:
@@ -50,7 +52,7 @@ class EventBus:
     def remove_handlers(
         self,
         event_type: Type[Event],  # noqa: UP006
-        handlers: list[IMessageHandler] | None = None,
+        handlers: Sequence[IMessageHandler] | None = None,
     ) -> None:
         """Remove previously registered handlers."""
         if handlers is None:
@@ -74,14 +76,17 @@ class EventBus:
 
     @typechecked
     def dispatch(
-        self, event: Event, handlers: list[IMessageHandler] | None = None
+        self, event: Event, handlers: Sequence[IMessageHandler] | None = None
     ) -> None:
-        """Dispatch a provided event to the given handlers."""
+        """Dispatch events to their handlers.
+
+        Previously registered handlers dispatch first.
+        """
         if handlers is None:
             handlers = []
 
         matched_handlers = self._handlers[type(event)]
-        handlers.extend(matched_handlers)
+        matched_handlers.extend(handlers)
 
-        for handler in handlers:  # pragma: no branch
+        for handler in matched_handlers:  # pragma: no branch
             handler.handle(event)
