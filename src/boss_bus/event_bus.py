@@ -30,7 +30,18 @@ class MissingEventError(Exception):
 
 
 class EventBus:
-    """Dispatches events to their associated handlers."""
+    """Dispatches events to their associated handlers.
+
+    Example:
+            >>> from tests.examples import TestEvent, TestEventHandler
+            >>> bus = EventBus()
+            >>> handler = TestEventHandler()
+            >>> event = TestEvent("Testing...")
+            >>>
+            >>> bus.add_handlers(TestEvent, [handler])
+            >>> bus.dispatch(event)
+            Testing...
+    """
 
     def __init__(self) -> None:
         """Creates an Event Bus."""

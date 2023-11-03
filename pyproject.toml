@@ -54,6 +54,9 @@ tests = ["tests", "*/tests"]
 [tool.coverage.run]
 branch = true
 source = ["boss_bus", "tests"]
+omit = [
+    "tests/examples.py",
+]
 
 [tool.coverage.report]
 show_missing = true
