@@ -65,7 +65,7 @@ class TestCommandBus:
         bus = CommandBus()
 
         with pytest.raises(InvalidHandlerError):
-            bus.execute(command, handler)  # type: ignore
+            bus.execute(command, handler)  # type: ignore[misc]
 
     def test_execute_does_not_accept_multiple_handlers(self) -> None:
         command = ExplosionCommand()
@@ -74,7 +74,7 @@ class TestCommandBus:
         bus = CommandBus()
 
         with pytest.raises(TypeCheckError):
-            bus.execute(command, [handler1, handler2])  # type: ignore
+            bus.execute(command, [handler1, handler2])  # type: ignore[arg-type]
 
     def test_execute_cannot_execute_a_command_with_no_handlers(
         self,
@@ -116,7 +116,7 @@ class TestCommandBus:
         bus = CommandBus()
 
         with pytest.raises(TypeError):
-            bus.register_handler(ExplosionCommand)  # type: ignore
+            bus.register_handler(ExplosionCommand)  # type: ignore[call-arg]
 
     def test_register_handler_requires_command_type_to_be_a_type(self) -> None:
         command = ExplosionCommand()
@@ -124,7 +124,7 @@ class TestCommandBus:
         bus = CommandBus()
 
         with pytest.raises(TypeCheckError):
-            bus.register_handler(command, handler1)  # type: ignore
+            bus.register_handler(command, handler1)  # type: ignore[arg-type]
 
     def test_register_handler_will_not_register_an_invalid_handler_for_the_command(
         self,
@@ -133,7 +133,7 @@ class TestCommandBus:
         bus = CommandBus()
 
         with pytest.raises(InvalidHandlerError):
-            bus.register_handler(FloodCommand, handler)  # type: ignore
+            bus.register_handler(FloodCommand, handler)  # type: ignore[misc]
 
     def test_register_handler_will_not_accept_multiple_handlers(self) -> None:
         command = ExplosionCommand()
@@ -142,4 +142,4 @@ class TestCommandBus:
         bus = CommandBus()
 
         with pytest.raises(TypeCheckError):
-            bus.register_handler(command, [handler1, handler2])  # type: ignore
+            bus.register_handler(command, [handler1, handler2])  # type: ignore[arg-type]

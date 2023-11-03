@@ -69,7 +69,7 @@ class TestEventBus:
         bus = EventBus()
 
         with pytest.raises(TypeCheckError):
-            bus.dispatch(event, [handler])  # type: ignore
+            bus.dispatch(event, [handler])  # type: ignore[arg-type]
 
     def test_dispatch_will_not_throw_exception_if_dispatching_an_event_with_no_handlers(
         self,
@@ -125,14 +125,14 @@ class TestEventBus:
         bus = EventBus()
 
         with pytest.raises(TypeCheckError):
-            bus.add_handlers(event, [handler1])  # type: ignore
+            bus.add_handlers(event, [handler1])  # type: ignore[arg-type]
 
     def test_add_handlers_will_not_register_an_invalid_event_and_handler(self) -> None:
         handler = ExplosionEventHandler()
         bus = EventBus()
 
         with pytest.raises(TypeCheckError):
-            bus.add_handlers(FloodEvent, [handler])  # type: ignore
+            bus.add_handlers(FloodEvent, [handler])  # type: ignore[arg-type]
 
     def test_remove_handlers_can_remove_all_handlers(self) -> None:
         handler1 = ExplosionEventHandler()
@@ -176,7 +176,7 @@ class TestEventBus:
         bus.add_handlers(ExplosionEvent, [handler])
 
         with pytest.raises(TypeCheckError):
-            bus.remove_handlers(FloodEvent, [handler])  # type: ignore
+            bus.remove_handlers(FloodEvent, [handler])  # type: ignore[arg-type]
 
     def test_remove_handlers_throws_exception_if_handler_is_not_registered(
         self,
