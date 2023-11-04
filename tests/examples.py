@@ -3,7 +3,7 @@ from boss_bus.event_bus import Event
 from boss_bus.interface import SupportsHandle
 
 
-class TestEvent(Event):
+class ExampleEvent(Event):
     """A type of event purely for use in tests."""
 
     def __init__(self, event_data: str):
@@ -14,15 +14,15 @@ class TestEvent(Event):
         print(self.event_data)
 
 
-class TestEventHandler(SupportsHandle):
+class ExampleEventHandler(SupportsHandle):
     """An event handler purely for use in tests."""
 
-    def handle(self, event: TestEvent) -> None:
+    def handle(self, event: ExampleEvent) -> None:
         """Handle a test event."""
         event.print_event_data()
 
 
-class TestCommand(Command):
+class ExampleCommand(Command):
     """A type of command purely for use in tests."""
 
     def __init__(self, command_data: str):
@@ -33,9 +33,9 @@ class TestCommand(Command):
         print(self.command_data)
 
 
-class TestCommandHandler(CommandHandler[TestCommand]):
+class ExampleCommandHandler(CommandHandler[ExampleCommand]):
     """A command handler purely for use in tests."""
 
-    def handle(self, command: TestCommand) -> None:
+    def handle(self, command: ExampleCommand) -> None:
         """Handle a test command."""
         command.print_command_data()

@@ -38,12 +38,12 @@ class EventBus:
     """Dispatches events to their associated handlers.
 
     Example:
-        >>> from tests.examples import TestEvent, TestEventHandler
+        >>> from tests.examples import ExampleEvent, ExampleEventHandler
         >>> bus = EventBus()
-        >>> test_handler = TestEventHandler()
-        >>> test_event = TestEvent("Testing...")
+        >>> test_handler = ExampleEventHandler()
+        >>> test_event = ExampleEvent("Testing...")
         >>>
-        >>> bus.add_handlers(TestEvent, [test_handler])
+        >>> bus.add_handlers(ExampleEvent, [test_handler])
         >>> bus.dispatch(test_event)
         Testing...
     """
@@ -96,10 +96,10 @@ class EventBus:
         Previously registered handlers dispatch first.
 
         Example:
-            >>> from tests.examples import TestEvent, TestEventHandler
+            >>> from tests.examples import ExampleEvent, ExampleEventHandler
             >>> bus = EventBus()
-            >>> test_handler = TestEventHandler()
-            >>> test_event = TestEvent("Testing...")
+            >>> test_handler = ExampleEventHandler()
+            >>> test_event = ExampleEvent("Testing...")
             >>>
             >>> bus.dispatch(test_event, [test_handler])
             Testing...
