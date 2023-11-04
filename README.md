@@ -61,6 +61,7 @@ please [file an issue] along with a detailed description.
 Created by [@jimbroze].
 This project was generated from [@cjolowicz]'s [Hypermodern Python Cookiecutter] template.
 
+[@jimbroze]: https://github.com/jimbroze
 [@cjolowicz]: https://github.com/cjolowicz
 [pypi]: https://pypi.org/
 [hypermodern python cookiecutter]: https://github.com/cjolowicz/cookiecutter-hypermodern-python
