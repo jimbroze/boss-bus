@@ -38,6 +38,11 @@ class UnionCommandHandler(CommandHandler[Union[ExplosionCommand, FloodCommand]])
         command.print_command_data()
 
 
+# class UnionCommandHandler(CommandHandler[Union[ExplosionCommand, FloodCommand]]):
+#     def handle(self, command: ExplosionCommand | FloodCommand) -> None:
+#         command.print_command_data()
+
+
 class ExplosionCommandHandler(CommandHandler[ExplosionCommand]):
     def handle(self, command: ExplosionCommand) -> None:
         command.print_command_data()

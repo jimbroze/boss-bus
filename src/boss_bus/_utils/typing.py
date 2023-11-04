@@ -5,10 +5,14 @@ import sys
 import types
 
 try:
-    from types import UnionType as Union  # type: ignore[attr-defined]
+    from types import (  # type: ignore[attr-defined, unused-ignore]
+        UnionType as _Union,
+    )
 except ImportError:
-    from typing import Union
-from typing import Any, Mapping, get_args, get_origin
+    from typing import (  # type: ignore[assignment, unused-ignore]
+        Union as _Union,
+    )
+from typing import Any, Mapping, Union, get_args, get_origin
 
 
 def get_annotations(
@@ -24,9 +28,16 @@ def get_annotations(
     Otherwise, uses the back-ported function in this module.
     """
     try:
-        from inspect import get_annotations  # type: ignore[attr-defined]
+        from inspect import (  # type: ignore[attr-defined, unused-ignore]
+            get_annotations,
+        )
 
-        return get_annotations(obj, globals=globals, locals=locals, eval_str=eval_str)  # type: ignore[no-any-return]
+        return get_annotations(  # type: ignore[no-any-return, unused-ignore]
+            obj,  # type: ignore[arg-type, unused-ignore]
+            globals=globals,
+            locals=locals,
+            eval_str=eval_str,
+        )
     except ImportError:
         return _get_annotations(
             obj, _globals=globals, _locals=locals, eval_str=eval_str
@@ -48,7 +59,7 @@ def _eval_annotations(
     if len(evals) == 1:
         return evals[0]
 
-    return Union[tuple(evals)]
+    return Union[tuple(evals)]  # type: ignore[misc, unused-ignore]
 
 
 def _get_annotations(  # noqa C901
@@ -148,7 +159,7 @@ def type_matches(expected: type, actual: type) -> bool:
     if expected == actual:
         return True
 
-    if get_origin(expected) is Union:
+    if get_origin(expected) is Union or get_origin(expected) is _Union:
         for sub_type in get_args(expected):
             if sub_type == actual:
                 return True
