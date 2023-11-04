@@ -12,11 +12,21 @@ from boss_bus.command_bus import CommandBus, CommandHandler, SpecificCommand
 
 
 class MessageBus:
-    """Forwards events and commands to their associated buses."""
+    """Forwards events and commands to their associated buses.
 
-    def __init__(self) -> None:
+    Example:
+        >>> from tests.examples import ExampleCommand, ExampleCommandHandler
+        >>> bus = MessageBus()
+        >>> test_handler = ExampleCommandHandler()
+        >>> test_command = ExampleCommand("Testing...")
+        >>>
+        >>> bus.execute(test_command, test_handler)
+        Testing...
+    """
+
+    def __init__(self, command_bus: CommandBus | None = None) -> None:
         """Creates a Message Bus."""
-        self.command_bus = CommandBus()
+        self.command_bus = command_bus if command_bus is not None else CommandBus()
 
     @typechecked
     def execute(
