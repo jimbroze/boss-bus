@@ -128,14 +128,6 @@ class TestEventBus:
         captured = capsys.readouterr()
         assert captured.out == "It went boom\nIt went boom\nagain\nHi\n"
 
-    def test_add_handlers_requires_handlers_to_be_provided(self) -> None:
-        bus = EventBus()
-
-        with pytest.raises(TypeError) as e:
-            bus.add_handlers(ExplosionEvent, [])
-
-        assert str(e.value) == "add_handlers() requires at least one handler"
-
     def test_add_handlers_requires_event_type_to_be_a_type(self) -> None:
         event = ExplosionEvent()
         handler1 = ExplosionEventHandler()
@@ -154,7 +146,7 @@ class TestEventBus:
     def test_add_handers_will_not_register_an_uninstantiated_handler(self) -> None:
         bus = EventBus()
 
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeCheckError):
             bus.add_handlers(ExplosionEvent, [ExplosionEventHandler])  # type: ignore[list-item]
 
     def test_remove_handlers_can_remove_all_handlers(self) -> None:

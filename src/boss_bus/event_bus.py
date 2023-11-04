@@ -13,7 +13,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Any, Sequence, Type
 
-from typeguard import typechecked
+from typeguard import TypeCheckError, typechecked
 
 from boss_bus.handler import MissingHandlerError
 from boss_bus.interface import SupportsHandle
@@ -29,7 +29,9 @@ class MissingEventError(Exception):
 
 def _validate_handler(handler: Any) -> None:
     if isinstance(handler, type):
-        raise TypeError(f"'handlers' must be an instance of {SupportsHandle.__name__}")
+        raise TypeCheckError(
+            f"'handlers' must be an instance of {SupportsHandle.__name__}"
+        )
 
 
 class EventBus:
@@ -57,9 +59,6 @@ class EventBus:
         handlers: Sequence[SupportsHandle],
     ) -> None:
         """Register handlers that will dispatch a type of Event."""
-        if len(handlers) == 0:
-            raise TypeError("add_handlers() requires at least one handler")
-
         for handler in handlers:  # pragma: no branch
             _validate_handler(handler)
             self._handlers[event_type].append(handler)
