@@ -11,12 +11,12 @@ Classes:
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TYPE_CHECKING, Type
+from typing import Any, Sequence, Type
 
-from typeguard import typechecked
+from typeguard import TypeCheckError, typechecked
 
-if TYPE_CHECKING:
-    from boss_bus.interface import IMessageHandler
+from boss_bus.handler import MissingHandlerError
+from boss_bus.interface import SupportsHandle
 
 
 class Event:
@@ -27,63 +27,88 @@ class MissingEventError(Exception):
     """The requested Error could not be found."""
 
 
-class MissingHandlerError(Exception):
-    """The requested Handler could not be found."""
+def _validate_handler(handler: Any) -> None:
+    if isinstance(handler, type):
+        raise TypeCheckError(
+            f"'handlers' must be an instance of {SupportsHandle.__name__}"
+        )
 
 
 class EventBus:
-    """Dispatches events to their associated handlers."""
+    """Dispatches events to their associated handlers.
+
+    Example:
+        >>> from tests.examples import TestEvent, TestEventHandler
+        >>> bus = EventBus()
+        >>> test_handler = TestEventHandler()
+        >>> test_event = TestEvent("Testing...")
+        >>>
+        >>> bus.add_handlers(TestEvent, [test_handler])
+        >>> bus.dispatch(test_event)
+        Testing...
+    """
 
     def __init__(self) -> None:
         """Creates an Event Bus."""
-        self._handlers: dict[type[Event], list[IMessageHandler]] = defaultdict(list)
+        self._handlers: dict[type[Event], list[SupportsHandle]] = defaultdict(list)
 
     @typechecked
     def add_handlers(
-        self, event_type: Type[Event], handlers: list[IMessageHandler]  # noqa: UP006
+        self,
+        event_type: Type[Event],  # noqa: UP006
+        handlers: Sequence[SupportsHandle],
     ) -> None:
         """Register handlers that will dispatch a type of Event."""
-        if len(handlers) == 0:
-            raise TypeError("add_handlers() requires at least one handler")
-
-        self._handlers[event_type].extend(handlers)
+        for handler in handlers:  # pragma: no branch
+            _validate_handler(handler)
+            self._handlers[event_type].append(handler)
 
     @typechecked
     def remove_handlers(
         self,
         event_type: Type[Event],  # noqa: UP006
-        handlers: list[IMessageHandler] | None = None,
+        handlers: Sequence[SupportsHandle] | None = None,
     ) -> None:
         """Remove previously registered handlers."""
         if handlers is None:
             handlers = []
 
-        if event_type not in self._handlers:
-            raise MissingEventError(f"The event '{event_type}' has not been registered")
-
         for handler in handlers:
+            _validate_handler(handler)
+
             if handler not in self._handlers[event_type]:
                 raise MissingHandlerError(
-                    f"The handler '{handler}' has not been registered for event '{event_type}'"
+                    f"The handler '{handler}' has not been registered for event '{event_type.__name__}'"
                 )
 
             self._handlers[event_type].remove(handler)
 
-        if (  # pragma: no branch
-            len(handlers) == 0 or len(self._handlers[event_type]) == 0
-        ):
-            del self._handlers[event_type]
+        if len(handlers) == 0:  # pragma: no branch
+            self._handlers[event_type] = []
 
     @typechecked
     def dispatch(
-        self, event: Event, handlers: list[IMessageHandler] | None = None
+        self, event: Event, handlers: Sequence[SupportsHandle] | None = None
     ) -> None:
-        """Dispatch a provided event to the given handlers."""
+        """Dispatch events to their handlers.
+
+        Handlers can be dispatched directly or pre-registered with 'add_handlers'.
+        Previously registered handlers dispatch first.
+
+        Example:
+            >>> from tests.examples import TestEvent, TestEventHandler
+            >>> bus = EventBus()
+            >>> test_handler = TestEventHandler()
+            >>> test_event = TestEvent("Testing...")
+            >>>
+            >>> bus.dispatch(test_event, [test_handler])
+            Testing...
+        """
         if handlers is None:
             handlers = []
 
         matched_handlers = self._handlers[type(event)]
-        handlers.extend(matched_handlers)
+        matched_handlers.extend(handlers)
 
-        for handler in handlers:  # pragma: no branch
+        for handler in matched_handlers:  # pragma: no branch
             handler.handle(event)

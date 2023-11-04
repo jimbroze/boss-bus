@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "boss-bus"
-version = "0.1.0"
+version = "0.2.0"
 description = "A Type-driven Message Bus for Python 3.8+"
 authors = ["Jim Dickinson <james.n.dickinson@gmail.com>"]
 license = "GPL-3.0"
@@ -10,6 +10,13 @@ repository = "https://github.com/jimbroze/boss-bus"
 documentation = "https://boss-bus.readthedocs.io"
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed",
 ]
 
 [tool.poetry.urls]
@@ -54,6 +61,10 @@ tests = ["tests", "*/tests"]
 [tool.coverage.run]
 branch = true
 source = ["boss_bus", "tests"]
+omit = [
+    "src/boss_bus/_utils/*",
+    "tests/examples.py",
+]
 
 [tool.coverage.report]
 show_missing = true

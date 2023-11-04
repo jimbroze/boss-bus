@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from boss_bus.interface import IMessageHandler
+from boss_bus.interface import SupportsHandle
 
 if TYPE_CHECKING:
     from _pytest.capture import CaptureFixture
@@ -24,17 +24,17 @@ class FloodMessage:
         print("It got wet")
 
 
-class AnyMessageHandler(IMessageHandler):
+class AnyMessageHandler(SupportsHandle):
     def handle(self, message: Any) -> None:  # noqa: ARG002
         print("Hi")
 
 
-class ExplosionMessageHandler(IMessageHandler):
+class ExplosionMessageHandler(SupportsHandle):
     def handle(self, message: ExplosionMessage) -> None:
         message.print_message_data()
 
 
-class SecondExplosionMessageHandler(IMessageHandler):
+class SecondExplosionMessageHandler(SupportsHandle):
     def handle(self, message: ExplosionMessage) -> None:
         pass
 

@@ -1,4 +1,4 @@
-poetry run coverage run -m pytest tests "$@"
+poetry run coverage run -m pytest --xdoctest "$@"
 poetry run coverage report
 poetry run mypy src tests
 poetry run ruff .

@@ -7,10 +7,11 @@ Classes:
 
 from __future__ import annotations
 
-from typing import Any, Protocol
+from typing import Any, Protocol, runtime_checkable
 
 
-class IMessageHandler(Protocol):
+@runtime_checkable
+class SupportsHandle(Protocol):
     """An interface that requires a handler method."""
 
     def handle(self, message: Any) -> Any:
