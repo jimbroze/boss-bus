@@ -38,14 +38,14 @@ class EventBus:
     """Dispatches events to their associated handlers.
 
     Example:
-            >>> from tests.examples import TestEvent, TestEventHandler
-            >>> bus = EventBus()
-            >>> handler = TestEventHandler()
-            >>> event = TestEvent("Testing...")
-            >>>
-            >>> bus.add_handlers(TestEvent, [handler])
-            >>> bus.dispatch(event)
-            Testing...
+        >>> from tests.examples import TestEvent, TestEventHandler
+        >>> bus = EventBus()
+        >>> test_handler = TestEventHandler()
+        >>> test_event = TestEvent("Testing...")
+        >>>
+        >>> bus.add_handlers(TestEvent, [test_handler])
+        >>> bus.dispatch(test_event)
+        Testing...
     """
 
     def __init__(self) -> None:
@@ -92,7 +92,17 @@ class EventBus:
     ) -> None:
         """Dispatch events to their handlers.
 
+        Handlers can be dispatched directly or pre-registered with 'add_handlers'.
         Previously registered handlers dispatch first.
+
+        Example:
+            >>> from tests.examples import TestEvent, TestEventHandler
+            >>> bus = EventBus()
+            >>> test_handler = TestEventHandler()
+            >>> test_event = TestEvent("Testing...")
+            >>>
+            >>> bus.dispatch(test_event, [test_handler])
+            Testing...
         """
         if handlers is None:
             handlers = []

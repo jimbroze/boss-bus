@@ -11,13 +11,14 @@ Classes:
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from inspect import signature
 from typing import Any, Generic, Type, TypeVar
 
 from typeguard import typechecked
 
 from boss_bus.handler import MissingHandlerError
 from boss_bus.interface import SupportsHandle
+
+from ._utils.typing import get_annotations, type_matches
 
 
 class Command:
@@ -46,17 +47,26 @@ class InvalidHandlerError(Exception):
 def _validate_handler(
     command_type: type[Command], handler: CommandHandler[Any]
 ) -> None:
-    if (
-        command_type.__name__
-        != signature(handler.handle).parameters["command"].annotation
-    ):
+    # not in signature(handler.handle).parameters["command"].annotation
+    if not type_matches(get_annotations(handler.handle)["command"], command_type):
         raise InvalidHandlerError(
             f"The handler '{handler}' does not match the command '{command_type.__name__}'"
         )
 
 
 class CommandBus:
-    """Executes commands using their associated handler."""
+    """Executes commands using their associated handler.
+
+    Example:
+        >>> from tests.examples import TestCommand, TestCommandHandler
+        >>> bus = CommandBus()
+        >>> test_handler = TestCommandHandler()
+        >>> test_command = TestCommand("Testing...")
+        >>>
+        >>> bus.register_handler(TestCommand, test_handler)
+        >>> bus.execute(test_command)
+        Testing...
+    """
 
     def __init__(self) -> None:
         """Creates a Command Bus."""
@@ -92,8 +102,17 @@ class CommandBus:
         command: SpecificCommand,
         handler: CommandHandler[SpecificCommand] | None = None,
     ) -> None:
-        """Execute a provided command using its handler."""
-        # print(check_type(handler, CommandHandler[SpecificCommand]))
+        """Calls the handle method on a command's handler.
+
+        Example:
+            >>> from tests.examples import TestCommand, TestCommandHandler
+            >>> bus = CommandBus()
+            >>> test_handler = TestCommandHandler()
+            >>> test_command = TestCommand("Testing...")
+            >>>
+            >>> bus.execute(test_command, test_handler)
+            Testing...
+        """
         if handler:
             _validate_handler(type(command), handler)
 

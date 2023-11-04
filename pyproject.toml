@@ -55,6 +55,7 @@ tests = ["tests", "*/tests"]
 branch = true
 source = ["boss_bus", "tests"]
 omit = [
+    "src/boss_bus/_utils/*",
     "tests/examples.py",
 ]
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 import pytest
 from typeguard import TypeCheckError
@@ -24,12 +24,18 @@ class ExplosionCommand(Command):
 
 
 class FloodCommand(Command):
-    pass
+    def print_command_data(self) -> None:
+        print("It got wet")
 
 
 class AnyCommandHandler(CommandHandler[Command]):
     def handle(self, command: Command) -> None:
         pass
+
+
+class UnionCommandHandler(CommandHandler[Union[ExplosionCommand, FloodCommand]]):
+    def handle(self, command: ExplosionCommand | FloodCommand) -> None:
+        command.print_command_data()
 
 
 class ExplosionCommandHandler(CommandHandler[ExplosionCommand]):
@@ -111,6 +117,18 @@ class TestCommandBus:
 
         with pytest.raises(TooManyHandlersError):
             bus.execute(command, handler2)
+
+    def test_execute_accepts_a_union_of_commands(
+        self, capsys: CaptureFixture[str]
+    ) -> None:
+        command = FloodCommand()
+        handler = UnionCommandHandler()
+        bus = CommandBus()
+
+        bus.execute(command, handler)
+
+        captured = capsys.readouterr()
+        assert captured.out == "It got wet\n"
 
     def test_register_handler_requires_handlers_to_be_provided(self) -> None:
         bus = CommandBus()
