@@ -6,8 +6,6 @@ Classes:
 """
 from __future__ import annotations
 
-from typeguard import typechecked
-
 from boss_bus.command_bus import CommandBus, CommandHandler, SpecificCommand
 
 
@@ -28,7 +26,6 @@ class MessageBus:
         """Creates a Message Bus."""
         self.command_bus = command_bus if command_bus is not None else CommandBus()
 
-    @typechecked
     def execute(
         self,
         command: SpecificCommand,
