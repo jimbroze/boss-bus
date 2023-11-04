@@ -45,9 +45,8 @@ class InvalidHandlerError(Exception):
 
 
 def _validate_handler(
-    command_type: type[Command], handler: CommandHandler[Any]
+    command_type: Type[Command], handler: CommandHandler[Any]  # noqa UP006
 ) -> None:
-    # not in signature(handler.handle).parameters["command"].annotation
     if not type_matches(get_annotations(handler.handle)["command"], command_type):
         raise InvalidHandlerError(
             f"The handler '{handler}' does not match the command '{command_type.__name__}'"

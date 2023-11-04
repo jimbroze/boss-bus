@@ -4,6 +4,8 @@ import functools
 import sys
 import types
 
+from typeguard import typeguard_ignore
+
 try:
     from types import (  # type: ignore[attr-defined, unused-ignore]
         UnionType as _Union,
@@ -15,6 +17,29 @@ except ImportError:
 from typing import Any, Mapping, Union, get_args, get_origin
 
 
+def type_matches(expected: Any, actual: type) -> bool:
+    """Checks if a class matches an expected result.
+
+    This includes checking if the actual class is in a Union with other classes.
+
+    Example:
+        >>> expected_class = Union[str, int]
+        >>> actual_class = str
+        >>> type_matches(expected_class, actual_class)
+        True
+    """
+    if expected == actual:
+        return True
+
+    if get_origin(expected) is Union or get_origin(expected) is _Union:
+        for sub_type in get_args(expected):
+            if sub_type == actual:
+                return True
+
+    return False
+
+
+@typeguard_ignore
 def get_annotations(
     obj: object | type | types.ModuleType,
     *,
@@ -44,6 +69,7 @@ def get_annotations(
         )
 
 
+@typeguard_ignore
 def _eval_annotations(
     value: Any, _globals: dict[str, Any] | None, _locals: Mapping[str, object] | None
 ) -> Any:
@@ -62,6 +88,7 @@ def _eval_annotations(
     return Union[tuple(evals)]  # type: ignore[misc, unused-ignore]
 
 
+@typeguard_ignore
 def _get_annotations(  # noqa C901
     obj: object | type | types.ModuleType,
     *,
@@ -143,25 +170,3 @@ def _get_annotations(  # noqa C901
         else _eval_annotations(value, eval_globals, _locals)
         for key, value in ann.items()
     }
-
-
-def type_matches(expected: type, actual: type) -> bool:
-    """Checks if a class matches an expected result.
-
-    This includes checking if the actual class is in a Union with other classes.
-
-    Example:
-        >>> expected_class = Union[str, int]
-        >>> actual_class = str
-        >>> type_matches(expected_class, actual_class)
-        True
-    """
-    if expected == actual:
-        return True
-
-    if get_origin(expected) is Union or get_origin(expected) is _Union:
-        for sub_type in get_args(expected):
-            if sub_type == actual:
-                return True
-
-    return False
