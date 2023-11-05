@@ -50,6 +50,18 @@ class MessageBus:
             return self._register_command(message_type, handlers)
         raise TypeError("register() arg 1 must be an Event or a Command")
 
+    def deregister(
+        self,
+        message_type: Type[Event] | Type[SpecificCommand],
+        handlers: Sequence[SupportsHandle] | None = None,
+    ) -> None:
+        """Remove registered handlers for an event or command."""
+        if issubclass(message_type, Event):
+            return self._deregister_event(message_type, handlers)
+        if issubclass(message_type, Command):
+            return self._deregister_command(message_type)
+        raise TypeError("deregister() arg 1 must be an Event or a Command class")
+
     def execute(
         self,
         command: SpecificCommand,
@@ -99,3 +111,15 @@ class MessageBus:
     ) -> None:
         """Register a handler that will dispatch a type of Command."""
         self.command_bus.register_handler(message_type, handler)
+
+    def _deregister_event(
+        self,
+        message_type: Type[Event],
+        handlers: Any,
+    ) -> None:
+        """Remove handlers that are registered to dispatch an Event."""
+        self.event_bus.remove_handlers(message_type, handlers)
+
+    def _deregister_command(self, message_type: Type[SpecificCommand]) -> None:
+        """Remove a handler that is registered to execute a Command."""
+        self.command_bus.remove_handler(message_type)
