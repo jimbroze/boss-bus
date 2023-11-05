@@ -55,7 +55,7 @@ class EventBus:
     @typechecked
     def add_handlers(
         self,
-        event_type: Type[Event],  # noqa: UP006
+        event_type: Type[Event],
         handlers: Sequence[SupportsHandle],
     ) -> None:
         """Register handlers that will dispatch a type of Event."""
@@ -66,7 +66,7 @@ class EventBus:
     @typechecked
     def remove_handlers(
         self,
-        event_type: Type[Event],  # noqa: UP006
+        event_type: Type[Event],
         handlers: Sequence[SupportsHandle] | None = None,
     ) -> None:
         """Remove previously registered handlers."""

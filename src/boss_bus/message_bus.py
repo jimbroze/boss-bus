@@ -6,13 +6,16 @@ Classes:
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Sequence
+from typing import Any, Sequence, Type
 
-from boss_bus.command_bus import CommandBus, CommandHandler, SpecificCommand
+from boss_bus.command_bus import (
+    Command,
+    CommandBus,
+    CommandHandler,
+    SpecificCommand,
+)
 from boss_bus.event_bus import Event, EventBus
-
-if TYPE_CHECKING:
-    from boss_bus.interface import SupportsHandle
+from boss_bus.interface import SupportsHandle  # noqa: TCH001
 
 
 class MessageBus:
@@ -35,6 +38,18 @@ class MessageBus:
         self.command_bus = command_bus if command_bus is not None else CommandBus()
         self.event_bus = event_bus if event_bus is not None else EventBus()
 
+    def register(
+        self,
+        message_type: Type[Event] | Type[SpecificCommand],
+        handlers: Sequence[SupportsHandle] | CommandHandler[SpecificCommand],
+    ) -> None:
+        """Register handlers that will dispatch an event or command."""
+        if issubclass(message_type, Event):
+            return self._register_event(message_type, handlers)
+        if issubclass(message_type, Command):
+            return self._register_command(message_type, handlers)
+        raise TypeError("register() arg 1 must be an Event or a Command")
+
     def execute(
         self,
         command: SpecificCommand,
@@ -56,10 +71,7 @@ class MessageBus:
     def dispatch(
         self, event: Event, handlers: Sequence[SupportsHandle] | None = None
     ) -> None:
-        """Dispatch events to their handlers.
-
-        Handlers can be dispatched directly or pre-registered with 'add_handlers'.
-        Previously registered handlers dispatch first.
+        """Forwards an event to an EventBus for dispatching.
 
         Example:
             >>> from tests.examples import ExampleEvent, ExampleEventHandler
@@ -71,3 +83,19 @@ class MessageBus:
             Testing...
         """
         self.event_bus.dispatch(event, handlers)
+
+    def _register_event(
+        self,
+        message_type: Type[Event],
+        handlers: Any,
+    ) -> None:
+        """Register handlers that will dispatch a type of Event."""
+        self.event_bus.add_handlers(message_type, handlers)
+
+    def _register_command(
+        self,
+        message_type: Type[SpecificCommand],
+        handler: Any,
+    ) -> None:
+        """Register a handler that will dispatch a type of Command."""
+        self.command_bus.register_handler(message_type, handler)

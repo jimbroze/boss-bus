@@ -45,7 +45,7 @@ class InvalidHandlerError(Exception):
 
 
 def _validate_handler(
-    command_type: Type[Command], handler: CommandHandler[Any]  # noqa UP006
+    command_type: Type[Command], handler: CommandHandler[Any]
 ) -> None:
     if not type_matches(get_annotations(handler.handle)["command"], command_type):
         raise InvalidHandlerError(
@@ -74,7 +74,7 @@ class CommandBus:
     @typechecked
     def register_handler(
         self,
-        command_type: Type[SpecificCommand],  # noqa: UP006
+        command_type: Type[SpecificCommand],
         handler: CommandHandler[SpecificCommand],
     ) -> None:
         """Register a single handler that will execute a type of Command."""
@@ -85,7 +85,7 @@ class CommandBus:
     @typechecked
     def remove_handler(
         self,
-        command_type: Type[SpecificCommand],  # noqa: UP006
+        command_type: Type[SpecificCommand],
     ) -> None:
         """Remove a previously registered handler."""
         if command_type not in self._handlers:

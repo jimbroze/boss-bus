@@ -50,3 +50,26 @@ class TestMessageBus:
 
         with pytest.raises(TypeCheckError):
             bus.dispatch(command, handler)  # type: ignore[arg-type]
+
+    def test_command_registers_with_the_command_bus(self) -> None:
+        handler = ExampleCommandHandler()
+        bus = MessageBus()
+
+        bus.register(ExampleCommand, handler)
+
+        assert ExampleCommand in bus.command_bus._handlers  # noqa: SLF001
+
+    def test_event_register_with_the_event_bus(self) -> None:
+        handler = ExampleEventHandler()
+        bus = MessageBus()
+
+        bus.register(ExampleEvent, [handler])
+
+        assert ExampleEvent in bus.event_bus._handlers  # noqa: SLF001
+
+    def test_only_events_and_commands_can_be_registered(self) -> None:
+        handler = ExampleEventHandler()
+        bus = MessageBus()
+
+        with pytest.raises(TypeError):
+            bus.register(ExampleEventHandler, [handler])  # type: ignore[type-var]
