@@ -55,7 +55,7 @@ class TestMessageBus:
         handler = ExampleCommandHandler()
         bus = MessageBus()
 
-        bus.register(ExampleCommand, handler)
+        bus.register_command(ExampleCommand, handler)
 
         assert ExampleCommand in bus.command_bus._handlers  # noqa: SLF001
 
@@ -63,24 +63,17 @@ class TestMessageBus:
         handler = ExampleEventHandler()
         bus = MessageBus()
 
-        bus.register(ExampleEvent, [handler])
+        bus.register_event(ExampleEvent, [handler])
 
         assert ExampleEvent in bus.event_bus._handlers  # noqa: SLF001
-
-    def test_only_events_and_commands_can_be_registered(self) -> None:
-        handler = ExampleEventHandler()
-        bus = MessageBus()
-
-        with pytest.raises(TypeError):
-            bus.register(ExampleEventHandler, [handler])  # type: ignore[type-var]
 
     def test_command_deregisters_with_the_command_bus(self) -> None:
         command_bus = CommandBus()
         bus = MessageBus(command_bus=command_bus)
         handler = ExampleCommandHandler()
 
-        bus.register(ExampleCommand, handler)
-        bus.deregister(ExampleCommand)
+        bus.register_command(ExampleCommand, handler)
+        bus.deregister_command(ExampleCommand)
 
         assert ExampleCommand not in command_bus._handlers  # noqa: SLF001
 
@@ -89,14 +82,7 @@ class TestMessageBus:
         event_bus = EventBus()
         bus = MessageBus(event_bus=event_bus)
 
-        bus.register(ExampleEvent, [handler])
-        bus.deregister(ExampleEvent, [handler])
+        bus.register_event(ExampleEvent, [handler])
+        bus.deregister_event(ExampleEvent, [handler])
 
         assert handler not in event_bus._handlers.get(ExampleEvent, [])  # noqa: SLF001
-
-    def test_only_events_and_commands_can_be_deregistered(self) -> None:
-        handler = ExampleEventHandler()
-        bus = MessageBus()
-
-        with pytest.raises(TypeError):
-            bus.deregister(ExampleEventHandler, [handler])  # type: ignore[type-var]

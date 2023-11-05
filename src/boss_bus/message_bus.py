@@ -6,10 +6,9 @@ Classes:
 """
 from __future__ import annotations
 
-from typing import Any, Sequence, Type
+from typing import Sequence, Type
 
 from boss_bus.command_bus import (
-    Command,
     CommandBus,
     CommandHandler,
     SpecificCommand,
@@ -37,30 +36,6 @@ class MessageBus:
         """Creates a Message Bus."""
         self.command_bus = command_bus if command_bus is not None else CommandBus()
         self.event_bus = event_bus if event_bus is not None else EventBus()
-
-    def register(
-        self,
-        message_type: Type[Event] | Type[SpecificCommand],
-        handlers: Sequence[SupportsHandle] | CommandHandler[SpecificCommand],
-    ) -> None:
-        """Register handlers that will dispatch an event or command."""
-        if issubclass(message_type, Event):
-            return self._register_event(message_type, handlers)
-        if issubclass(message_type, Command):
-            return self._register_command(message_type, handlers)
-        raise TypeError("register() arg 1 must be an Event or a Command")
-
-    def deregister(
-        self,
-        message_type: Type[Event] | Type[SpecificCommand],
-        handlers: Sequence[SupportsHandle] | None = None,
-    ) -> None:
-        """Remove registered handlers for an event or command."""
-        if issubclass(message_type, Event):
-            return self._deregister_event(message_type, handlers)
-        if issubclass(message_type, Command):
-            return self._deregister_command(message_type)
-        raise TypeError("deregister() arg 1 must be an Event or a Command class")
 
     def execute(
         self,
@@ -96,30 +71,30 @@ class MessageBus:
         """
         self.event_bus.dispatch(event, handlers)
 
-    def _register_event(
+    def register_event(
         self,
         message_type: Type[Event],
-        handlers: Any,
+        handlers: Sequence[SupportsHandle],
     ) -> None:
         """Register handlers that will dispatch a type of Event."""
         self.event_bus.add_handlers(message_type, handlers)
 
-    def _register_command(
+    def register_command(
         self,
         message_type: Type[SpecificCommand],
-        handler: Any,
+        handler: CommandHandler[SpecificCommand],
     ) -> None:
         """Register a handler that will dispatch a type of Command."""
         self.command_bus.register_handler(message_type, handler)
 
-    def _deregister_event(
+    def deregister_event(
         self,
         message_type: Type[Event],
-        handlers: Any,
+        handlers: Sequence[SupportsHandle],
     ) -> None:
         """Remove handlers that are registered to dispatch an Event."""
         self.event_bus.remove_handlers(message_type, handlers)
 
-    def _deregister_command(self, message_type: Type[SpecificCommand]) -> None:
+    def deregister_command(self, message_type: Type[SpecificCommand]) -> None:
         """Remove a handler that is registered to execute a Command."""
         self.command_bus.remove_handler(message_type)
