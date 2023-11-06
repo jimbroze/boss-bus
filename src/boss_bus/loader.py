@@ -7,7 +7,11 @@ Class loading classes should implement the Interface (ClassLoader)
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Type, TypeVar, overload
+from typing import Type, TypeVar, get_type_hints, overload
+
+from ._utils.typing import get_annotations
+
+RETURN_ANNOTATION = "return"
 
 obj = TypeVar("obj")
 
@@ -48,5 +52,10 @@ class ClassInstantiator(ClassLoader):
         if not isinstance(cls, type):
             return cls
 
-        instance: obj = cls()
+        deps = get_type_hints(cls.__init__)  # type: ignore[misc]
+        print(get_annotations(cls.__init__))  # type: ignore[misc]
+        deps.pop(RETURN_ANNOTATION, None)
+        dep_instances = {dep_name: dep() for dep_name, dep in deps.items()}
+
+        instance: obj = cls(**dep_instances)
         return instance

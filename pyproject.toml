@@ -138,7 +138,7 @@ select = [
 ignore = ["E501", "UP006", "UP007"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S", "D100", "D101", "D102", "D103", "D104", "D205", "D212"]
+"tests/*" = ["S", "D100", "D101", "D102", "D103", "D104", "D107", "D205", "D212"]
 
 [tool.ruff.mccabe]
 max-complexity = 10

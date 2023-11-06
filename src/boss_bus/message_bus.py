@@ -77,6 +77,7 @@ class MessageBus:
         handlers: Sequence[SupportsHandle],
     ) -> None:
         """Register handlers that will dispatch a type of Event."""
+        # loaded_handlers = [self.loader.load(handler) for handler in handlers]
         self.event_bus.add_handlers(message_type, handlers)
 
     def register_command(

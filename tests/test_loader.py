@@ -2,7 +2,14 @@ from boss_bus.loader import ClassInstantiator
 
 
 class NoDeps:
-    output = "No dependencies loaded"
+    def __init__(self) -> None:
+        self.output = "No dependencies loaded"
+
+
+class SimpleDeps:
+    def __init__(self, dep: NoDeps) -> None:
+        self.dep = dep
+        self.output = "One dependency loaded"
 
 
 class TestClassInstantiator:
@@ -11,10 +18,21 @@ class TestClassInstantiator:
         instance = NoDeps()
 
         loaded_class = loader.load(instance)
+        assert isinstance(loaded_class, NoDeps)
         assert loaded_class.output == "No dependencies loaded"
 
     def test_load_instantiates_class_with_no_dependencies(self) -> None:
         loader = ClassInstantiator()
 
         loaded_class = loader.load(NoDeps)
+        assert isinstance(loaded_class, NoDeps)
         assert loaded_class.output == "No dependencies loaded"
+
+    def test_load_instantiates_class_with_one_layer_of_simple_dependencies(
+        self,
+    ) -> None:
+        loader = ClassInstantiator()
+
+        loaded_class = loader.load(SimpleDeps)
+        assert isinstance(loaded_class, SimpleDeps)
+        assert loaded_class.output == "One dependency loaded"
