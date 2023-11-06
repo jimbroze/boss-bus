@@ -7,9 +7,17 @@ class NoDeps:
 
 
 class SimpleDeps:
-    def __init__(self, dep: NoDeps) -> None:
-        self.dep = dep
+    def __init__(self, dep_one: NoDeps, dep_two: NoDeps) -> None:
+        self.dep_one = dep_one
+        self.dep_two = dep_two
         self.output = "One dependency loaded"
+
+
+class LayeredDeps:
+    def __init__(self, dep_one: SimpleDeps, dep_two: NoDeps) -> None:
+        self.dep_one = dep_one
+        self.dep_two = dep_two
+        self.output = "Layered dependencies loaded"
 
 
 class TestClassInstantiator:
@@ -36,3 +44,13 @@ class TestClassInstantiator:
         loaded_class = loader.load(SimpleDeps)
         assert isinstance(loaded_class, SimpleDeps)
         assert loaded_class.output == "One dependency loaded"
+
+    def test_load_instantiates_class_with_multiple_layers_of_simple_dependencies(
+        self,
+    ) -> None:
+        loader = ClassInstantiator()
+
+        loaded_class = loader.load(LayeredDeps)
+        assert isinstance(loaded_class, LayeredDeps)
+        assert loaded_class.output == "Layered dependencies loaded"
+        assert loaded_class.dep_one.output == "One dependency loaded"

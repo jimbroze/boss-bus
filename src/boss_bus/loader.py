@@ -13,7 +13,7 @@ from ._utils.typing import get_annotations
 
 RETURN_ANNOTATION = "return"
 
-obj = TypeVar("obj")
+obj = TypeVar("obj", bound=object)
 
 
 class ClassLoader(ABC):
@@ -29,7 +29,7 @@ class ClassLoader(ABC):
 
     @abstractmethod
     def load(self, cls: Type[obj] | obj) -> obj:
-        """Loads a class' dependencies and instantiates it."""
+        """Instantiates a class or returns an already instantiated instance."""
 
 
 class ClassInstantiator(ClassLoader):
@@ -47,15 +47,23 @@ class ClassInstantiator(ClassLoader):
     def load(self, cls: obj) -> obj:
         pass
 
-    def load(self, cls: Type[obj] | obj) -> obj:
-        """Instantiates a class and any simple dependencies it has."""
+    def load(self, cls: type[obj] | obj) -> obj:
+        """Instantiates a class or returns an already instantiated instance."""
         if not isinstance(cls, type):
             return cls
 
-        deps = get_type_hints(cls.__init__)  # type: ignore[misc]
-        print(get_annotations(cls.__init__))  # type: ignore[misc]
-        deps.pop(RETURN_ANNOTATION, None)
-        dep_instances = {dep_name: dep() for dep_name, dep in deps.items()}
+        # noinspection PyTypeChecker
+        return self.instantiate(cls)
 
-        instance: obj = cls(**dep_instances)
-        return instance
+    def instantiate(self, cls: type[obj]) -> obj:
+        """Instantiates a class and any simple dependencies it has."""
+        dependencies = get_type_hints(cls.__init__)
+        print(get_annotations(cls.__init__))
+        dependencies.pop(RETURN_ANNOTATION, None)
+
+        dependency_instances = {
+            dep_name: self.instantiate(dependency)
+            for dep_name, dependency in dependencies.items()
+        }
+
+        return cls(**dependency_instances)
