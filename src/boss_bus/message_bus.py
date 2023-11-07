@@ -15,6 +15,7 @@ from boss_bus.command_bus import (
 )
 from boss_bus.event_bus import Event, EventBus
 from boss_bus.interface import SupportsHandle  # noqa: TCH001
+from boss_bus.loader import ClassInstantiator, ClassLoader
 
 
 class MessageBus:
@@ -31,9 +32,13 @@ class MessageBus:
     """
 
     def __init__(
-        self, command_bus: CommandBus | None = None, event_bus: EventBus | None = None
+        self,
+        class_loader: ClassLoader | None = None,
+        command_bus: CommandBus | None = None,
+        event_bus: EventBus | None = None,
     ) -> None:
         """Creates a Message Bus."""
+        self.loader = class_loader if class_loader is not None else ClassInstantiator()
         self.command_bus = command_bus if command_bus is not None else CommandBus()
         self.event_bus = event_bus if event_bus is not None else EventBus()
 
@@ -74,19 +79,21 @@ class MessageBus:
     def register_event(
         self,
         message_type: Type[Event],
-        handlers: Sequence[SupportsHandle],
+        handlers: Sequence[Type[SupportsHandle] | SupportsHandle],
     ) -> None:
         """Register handlers that will dispatch a type of Event."""
-        # loaded_handlers = [self.loader.load(handler) for handler in handlers]
-        self.event_bus.add_handlers(message_type, handlers)
+        loaded_handlers = [self.loader.load(handler) for handler in handlers]
+        self.event_bus.add_handlers(message_type, loaded_handlers)
 
     def register_command(
         self,
         message_type: Type[SpecificCommand],
-        handler: CommandHandler[SpecificCommand],
+        handler: Type[CommandHandler[SpecificCommand]]
+        | CommandHandler[SpecificCommand],
     ) -> None:
         """Register a handler that will dispatch a type of Command."""
-        self.command_bus.register_handler(message_type, handler)
+        loaded_handler = self.loader.load(handler)
+        self.command_bus.register_handler(message_type, loaded_handler)
 
     def deregister_event(
         self,

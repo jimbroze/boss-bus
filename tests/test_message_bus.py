@@ -1,4 +1,5 @@
 import pytest
+from _pytest.capture import CaptureFixture
 from typeguard import TypeCheckError
 
 from boss_bus.command_bus import CommandBus
@@ -86,3 +87,27 @@ class TestMessageBus:
         bus.deregister_event(ExampleEvent, [handler])
 
         assert handler not in event_bus._handlers.get(ExampleEvent, [])  # noqa: SLF001
+
+    def test_default_loader_instantiates_event_classes(
+        self, capsys: CaptureFixture[str]
+    ) -> None:
+        bus = MessageBus()
+        event = ExampleEvent("Testing...")
+
+        bus.register_event(ExampleEvent, [ExampleEventHandler])
+        bus.dispatch(event)
+
+        captured = capsys.readouterr()
+        assert captured.out == "Testing...\n"
+
+    def test_default_loader_instantiates_command_classes(
+        self, capsys: CaptureFixture[str]
+    ) -> None:
+        bus = MessageBus()
+        command = ExampleCommand("Testing...")
+
+        bus.register_command(ExampleCommand, ExampleCommandHandler)
+        bus.execute(command)
+
+        captured = capsys.readouterr()
+        assert captured.out == "Testing...\n"

@@ -9,8 +9,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Type, TypeVar, get_type_hints, overload
 
-from ._utils.typing import get_annotations
-
 RETURN_ANNOTATION = "return"
 
 obj = TypeVar("obj", bound=object)
@@ -58,7 +56,6 @@ class ClassInstantiator(ClassLoader):
     def instantiate(self, cls: type[obj]) -> obj:
         """Instantiates a class and any simple dependencies it has."""
         dependencies = get_type_hints(cls.__init__)
-        print(get_annotations(cls.__init__))
         dependencies.pop(RETURN_ANNOTATION, None)
 
         dependency_instances = {
