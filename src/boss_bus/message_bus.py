@@ -39,7 +39,7 @@ class MessageBus:
         class_loader: ClassLoader | None = None,
         command_bus: CommandBus | None = None,
         event_bus: EventBus | None = None,
-    ) -> None:
+    ):
         """Creates a Message Bus."""
         self.loader = class_loader if class_loader is not None else ClassInstantiator()
         self.command_bus = command_bus if command_bus is not None else CommandBus()
