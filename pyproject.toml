@@ -27,6 +27,12 @@ python = "^3.8.1"
 click = ">=8.0.1"
 typeguard = ">=2.13.3"
 
+# Optional
+lagom = { version = "^2.4", optional = true }
+
+[tool.poetry.extras]
+lagom = ["lagom"]
+
 [tool.poetry.group.dev.dependencies]
 Pygments = ">=2.10.0"
 black = ">=23.10.1"
