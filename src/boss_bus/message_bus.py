@@ -6,7 +6,7 @@ Classes:
 """
 from __future__ import annotations
 
-from typing import Sequence, Type
+from typing import TYPE_CHECKING, Sequence, Type
 
 from boss_bus.command_bus import (
     CommandBus,
@@ -15,7 +15,10 @@ from boss_bus.command_bus import (
 )
 from boss_bus.event_bus import Event, EventBus
 from boss_bus.interface import SupportsHandle  # noqa: TCH001
-from boss_bus.loader import ClassInstantiator, ClassLoader
+from boss_bus.loader.instantiator import ClassInstantiator
+
+if TYPE_CHECKING:
+    from boss_bus.loader import ClassLoader
 
 
 class MessageBus:

@@ -1,4 +1,4 @@
-from boss_bus.loader import ClassInstantiator
+from boss_bus.loader.instantiator import ClassInstantiator
 
 
 class NoDeps:
