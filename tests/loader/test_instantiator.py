@@ -1,23 +1,5 @@
 from boss_bus.loader.instantiator import ClassInstantiator
-
-
-class NoDeps:
-    def __init__(self) -> None:
-        self.output = "No dependencies loaded"
-
-
-class SimpleDeps:
-    def __init__(self, dep_one: NoDeps, dep_two: NoDeps):
-        self.dep_one = dep_one
-        self.dep_two = dep_two
-        self.output = "One dependency loaded"
-
-
-class LayeredDeps:
-    def __init__(self, dep_one: SimpleDeps, dep_two: NoDeps):
-        self.dep_one = dep_one
-        self.dep_two = dep_two
-        self.output = "Layered dependencies loaded"
+from tests.loader.examples import LayeredDeps, NoDeps, SimpleDeps
 
 
 class TestClassInstantiator:
