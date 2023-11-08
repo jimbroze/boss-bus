@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Sequence, Type
 
+from typeguard import typeguard_ignore
+
 from boss_bus.command_bus import (
     CommandBus,
     CommandHandler,
@@ -88,6 +90,7 @@ class MessageBus:
         loaded_handlers = [self.loader.load(handler) for handler in handlers]
         self.event_bus.add_handlers(message_type, loaded_handlers)
 
+    @typeguard_ignore
     def register_command(
         self,
         message_type: Type[SpecificCommand],
