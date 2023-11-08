@@ -6,7 +6,7 @@ Classes:
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Sequence, Type
+from typing import TYPE_CHECKING, Sequence, Type, Union
 
 from typeguard import typeguard_ignore
 
@@ -94,8 +94,9 @@ class MessageBus:
     def register_command(
         self,
         message_type: Type[SpecificCommand],
-        handler: Type[CommandHandler[SpecificCommand]]
-        | CommandHandler[SpecificCommand],
+        handler: Union[
+            Type[CommandHandler[SpecificCommand]], CommandHandler[SpecificCommand]
+        ],
     ) -> None:
         """Register a handler that will dispatch a type of Command."""
         loaded_handler = self.loader.load(handler)
