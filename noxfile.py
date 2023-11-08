@@ -144,6 +144,7 @@ def mypy(session: Session) -> None:
     args = session.posargs or ["src", "tests", "docs/conf.py"]
     session.install(".")
     session.install("mypy", "pytest", "pytest-testdox")
+    session.install("lagom")
     session.run("mypy", *args)
     if not session.posargs:
         session.run("mypy", f"--python-executable={sys.executable}", "noxfile.py")
@@ -154,6 +155,7 @@ def tests(session: Session) -> None:
     """Run the test suite."""
     session.install(".")
     session.install("coverage[toml]", "pytest", "pytest-testdox", "pygments")
+    session.install("lagom")
     try:
         session.run("coverage", "run", "--parallel", "-m", "pytest", *session.posargs)
     finally:
@@ -180,6 +182,7 @@ def typeguard(session: Session) -> None:
     """Runtime type checking using Typeguard."""
     session.install(".")
     session.install("pytest", "pytest-testdox", "typeguard", "pygments")
+    session.install("lagom")
     session.run("pytest", f"--typeguard-packages={package}", *session.posargs)
 
 
