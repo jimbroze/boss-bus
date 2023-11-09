@@ -32,7 +32,7 @@ class CommandHandler(ABC, SupportsHandle, Generic[SpecificCommand]):
     """A form of message which only has one handler."""
 
     @abstractmethod
-    def handle(self, command: SpecificCommand) -> None:
+    def handle(self, command: SpecificCommand) -> Any:
         """Perform actions using a specific command."""
 
 
@@ -100,7 +100,7 @@ class CommandBus:
         self,
         command: SpecificCommand,
         handler: CommandHandler[SpecificCommand] | None = None,
-    ) -> None:
+    ) -> Any:
         """Calls the handle method on a command's handler.
 
         Example:
@@ -127,4 +127,4 @@ class CommandBus:
                 f"A handler has not been registered for the command '{type(command).__name__}'"
             )
 
-        matched_handler.handle(command)
+        return matched_handler.handle(command)

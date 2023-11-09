@@ -13,6 +13,10 @@ from boss_bus.command_bus import (
     TooManyHandlersError,
 )
 from boss_bus.handler import MissingHandlerError
+from tests.examples import (
+    ReturnCommand,
+    ReturnCommandHandler,
+)
 
 if TYPE_CHECKING:
     from _pytest.capture import CaptureFixture
@@ -129,6 +133,15 @@ class TestCommandBus:
 
         captured = capsys.readouterr()
         assert captured.out == "It got wet\n"
+
+    def test_execute_can_return_a_value(self) -> None:
+        command = ReturnCommand("Returned a value")
+        handler = ReturnCommandHandler()
+        bus = CommandBus()
+
+        result = bus.execute(command, handler)
+
+        assert result == "Returned a value"
 
     def test_register_handler_requires_handlers_to_be_provided(self) -> None:
         bus = CommandBus()

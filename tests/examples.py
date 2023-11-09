@@ -48,13 +48,10 @@ class ReturnCommand(Command):
         """Creates a command for tests."""
         self.command_data = command_data
 
-    def return_command_data(self) -> str:
-        return self.command_data
-
 
 class ReturnCommandHandler(CommandHandler[ReturnCommand]):
     """A command handler purely for use in tests."""
 
-    def handle(self, command: ReturnCommand) -> None:
+    def handle(self, command: ReturnCommand) -> str:
         """Handle a test command."""
-        command.return_command_data()
+        return command.command_data
