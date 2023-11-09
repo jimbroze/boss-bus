@@ -1,4 +1,5 @@
-poetry run coverage run -m pytest --xdoctest --typeguard-packages=boss_bus "$@"
+poetry run coverage run -m pytest --xdoctest "$@"
 poetry run coverage report
 poetry run mypy src tests
+poetry run pytest --typeguard-packages=boss_bus -o addopts=
 poetry run ruff .
