@@ -57,12 +57,12 @@ class CommandBus:
     """Executes commands using their associated handler.
 
     Example:
-        >>> from tests.examples import ExampleCommand, ExampleCommandHandler
+        >>> from tests.examples import PrintCommand, PrintCommandHandler
         >>> bus = CommandBus()
-        >>> test_handler = ExampleCommandHandler()
-        >>> test_command = ExampleCommand("Testing...")
+        >>> test_handler = PrintCommandHandler()
+        >>> test_command = PrintCommand("Testing...")
         >>>
-        >>> bus.register_handler(ExampleCommand, test_handler)
+        >>> bus.register_handler(PrintCommand, test_handler)
         >>> bus.execute(test_command)
         Testing...
     """
@@ -104,10 +104,10 @@ class CommandBus:
         """Calls the handle method on a command's handler.
 
         Example:
-            >>> from tests.examples import ExampleCommand, ExampleCommandHandler
+            >>> from tests.examples import PrintCommand, PrintCommandHandler
             >>> bus = CommandBus()
-            >>> test_handler = ExampleCommandHandler()
-            >>> test_command = ExampleCommand("Testing...")
+            >>> test_handler = PrintCommandHandler()
+            >>> test_command = PrintCommand("Testing...")
             >>>
             >>> bus.execute(test_command, test_handler)
             Testing...

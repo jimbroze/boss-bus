@@ -22,8 +22,8 @@ class ExampleEventHandler(SupportsHandle):
         event.print_event_data()
 
 
-class ExampleCommand(Command):
-    """A type of command purely for use in tests."""
+class PrintCommand(Command):
+    """A command purely for use in tests."""
 
     def __init__(self, command_data: str):
         """Creates a command for tests."""
@@ -33,9 +33,28 @@ class ExampleCommand(Command):
         print(self.command_data)
 
 
-class ExampleCommandHandler(CommandHandler[ExampleCommand]):
+class PrintCommandHandler(CommandHandler[PrintCommand]):
     """A command handler purely for use in tests."""
 
-    def handle(self, command: ExampleCommand) -> None:
+    def handle(self, command: PrintCommand) -> None:
         """Handle a test command."""
         command.print_command_data()
+
+
+class ReturnCommand(Command):
+    """A command purely for use in tests."""
+
+    def __init__(self, command_data: str):
+        """Creates a command for tests."""
+        self.command_data = command_data
+
+    def return_command_data(self) -> str:
+        return self.command_data
+
+
+class ReturnCommandHandler(CommandHandler[ReturnCommand]):
+    """A command handler purely for use in tests."""
+
+    def handle(self, command: ReturnCommand) -> None:
+        """Handle a test command."""
+        command.return_command_data()

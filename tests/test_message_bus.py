@@ -6,10 +6,10 @@ from boss_bus.command_bus import CommandBus
 from boss_bus.event_bus import EventBus
 from boss_bus.message_bus import MessageBus
 from tests.examples import (
-    ExampleCommand,
-    ExampleCommandHandler,
     ExampleEvent,
     ExampleEventHandler,
+    PrintCommand,
+    PrintCommandHandler,
 )
 
 
@@ -23,8 +23,8 @@ class TestMessageBus:
         assert bus.event_bus == event_bus
 
     def test_execute_executes_a_command(self) -> None:
-        command = ExampleCommand("Test the bus")
-        handler = ExampleCommandHandler()
+        command = PrintCommand("Test the bus")
+        handler = PrintCommandHandler()
         bus = MessageBus()
 
         bus.execute(command, handler)
@@ -45,20 +45,20 @@ class TestMessageBus:
         bus.dispatch(event, [handler])
 
     def test_a_command_cannot_be_dispatched(self) -> None:
-        command = ExampleCommand("Test the bus")
-        handler = ExampleCommandHandler()
+        command = PrintCommand("Test the bus")
+        handler = PrintCommandHandler()
         bus = MessageBus()
 
         with pytest.raises(TypeCheckError):
             bus.dispatch(command, handler)  # type: ignore[arg-type]
 
     def test_command_registers_with_the_command_bus(self) -> None:
-        handler = ExampleCommandHandler()
+        handler = PrintCommandHandler()
         bus = MessageBus()
 
-        bus.register_command(ExampleCommand, handler)
+        bus.register_command(PrintCommand, handler)
 
-        assert ExampleCommand in bus.command_bus._handlers  # noqa: SLF001
+        assert PrintCommand in bus.command_bus._handlers  # noqa: SLF001
 
     def test_event_registers_with_the_event_bus(self) -> None:
         handler = ExampleEventHandler()
@@ -71,12 +71,12 @@ class TestMessageBus:
     def test_command_deregisters_with_the_command_bus(self) -> None:
         command_bus = CommandBus()
         bus = MessageBus(command_bus=command_bus)
-        handler = ExampleCommandHandler()
+        handler = PrintCommandHandler()
 
-        bus.register_command(ExampleCommand, handler)
-        bus.deregister_command(ExampleCommand)
+        bus.register_command(PrintCommand, handler)
+        bus.deregister_command(PrintCommand)
 
-        assert ExampleCommand not in command_bus._handlers  # noqa: SLF001
+        assert PrintCommand not in command_bus._handlers  # noqa: SLF001
 
     def test_event_deregisters_with_the_event_bus(self) -> None:
         handler = ExampleEventHandler()
@@ -104,9 +104,9 @@ class TestMessageBus:
         self, capsys: CaptureFixture[str]
     ) -> None:
         bus = MessageBus()
-        command = ExampleCommand("Testing...")
+        command = PrintCommand("Testing...")
 
-        bus.register_command(ExampleCommand, ExampleCommandHandler)
+        bus.register_command(PrintCommand, PrintCommandHandler)
         bus.execute(command)
 
         captured = capsys.readouterr()

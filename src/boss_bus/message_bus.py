@@ -27,10 +27,10 @@ class MessageBus:
     """Forwards events and commands to their associated buses.
 
     Example:
-        >>> from tests.examples import ExampleCommand, ExampleCommandHandler
+        >>> from tests.examples import PrintCommand, PrintCommandHandler
         >>> bus = MessageBus()
-        >>> test_handler = ExampleCommandHandler()
-        >>> test_command = ExampleCommand("Testing...")
+        >>> test_handler = PrintCommandHandler()
+        >>> test_command = PrintCommand("Testing...")
         >>>
         >>> bus.execute(test_command, test_handler)
         Testing...
@@ -55,10 +55,10 @@ class MessageBus:
         """Forwards a command to a CommandBus for execution.
 
         Example:
-            >>> from tests.examples import ExampleCommand, ExampleCommandHandler
+            >>> from tests.examples import PrintCommand, PrintCommandHandler
             >>> bus = MessageBus()
-            >>> test_handler = ExampleCommandHandler()
-            >>> test_command = ExampleCommand("Testing...")
+            >>> test_handler = PrintCommandHandler()
+            >>> test_command = PrintCommand("Testing...")
             >>>
             >>> bus.execute(test_command, test_handler)
             Testing...
