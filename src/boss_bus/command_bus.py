@@ -32,7 +32,7 @@ class CommandHandler(ABC, SupportsHandle, Generic[SpecificCommand]):
     """A form of message which only has one handler."""
 
     @abstractmethod
-    def handle(self, command: SpecificCommand) -> None:
+    def handle(self, command: SpecificCommand) -> Any:
         """Perform actions using a specific command."""
 
 
@@ -57,12 +57,12 @@ class CommandBus:
     """Executes commands using their associated handler.
 
     Example:
-        >>> from tests.examples import ExampleCommand, ExampleCommandHandler
+        >>> from tests.examples import PrintCommand, PrintCommandHandler
         >>> bus = CommandBus()
-        >>> test_handler = ExampleCommandHandler()
-        >>> test_command = ExampleCommand("Testing...")
+        >>> test_handler = PrintCommandHandler()
+        >>> test_command = PrintCommand("Testing...")
         >>>
-        >>> bus.register_handler(ExampleCommand, test_handler)
+        >>> bus.register_handler(PrintCommand, test_handler)
         >>> bus.execute(test_command)
         Testing...
     """
@@ -100,14 +100,14 @@ class CommandBus:
         self,
         command: SpecificCommand,
         handler: CommandHandler[SpecificCommand] | None = None,
-    ) -> None:
+    ) -> Any:
         """Calls the handle method on a command's handler.
 
         Example:
-            >>> from tests.examples import ExampleCommand, ExampleCommandHandler
+            >>> from tests.examples import PrintCommand, PrintCommandHandler
             >>> bus = CommandBus()
-            >>> test_handler = ExampleCommandHandler()
-            >>> test_command = ExampleCommand("Testing...")
+            >>> test_handler = PrintCommandHandler()
+            >>> test_command = PrintCommand("Testing...")
             >>>
             >>> bus.execute(test_command, test_handler)
             Testing...
@@ -127,4 +127,4 @@ class CommandBus:
                 f"A handler has not been registered for the command '{type(command).__name__}'"
             )
 
-        matched_handler.handle(command)
+        return matched_handler.handle(command)

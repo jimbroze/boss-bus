@@ -6,7 +6,7 @@ Classes:
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Sequence, Type, Union
+from typing import TYPE_CHECKING, Any, Sequence, Type, Union
 
 from typeguard import typeguard_ignore
 
@@ -27,10 +27,10 @@ class MessageBus:
     """Forwards events and commands to their associated buses.
 
     Example:
-        >>> from tests.examples import ExampleCommand, ExampleCommandHandler
+        >>> from tests.examples import PrintCommand, PrintCommandHandler
         >>> bus = MessageBus()
-        >>> test_handler = ExampleCommandHandler()
-        >>> test_command = ExampleCommand("Testing...")
+        >>> test_handler = PrintCommandHandler()
+        >>> test_command = PrintCommand("Testing...")
         >>>
         >>> bus.execute(test_command, test_handler)
         Testing...
@@ -51,19 +51,19 @@ class MessageBus:
         self,
         command: SpecificCommand,
         handler: CommandHandler[SpecificCommand] | None = None,
-    ) -> None:
+    ) -> Any:
         """Forwards a command to a CommandBus for execution.
 
         Example:
-            >>> from tests.examples import ExampleCommand, ExampleCommandHandler
+            >>> from tests.examples import PrintCommand, PrintCommandHandler
             >>> bus = MessageBus()
-            >>> test_handler = ExampleCommandHandler()
-            >>> test_command = ExampleCommand("Testing...")
+            >>> test_handler = PrintCommandHandler()
+            >>> test_command = PrintCommand("Testing...")
             >>>
             >>> bus.execute(test_command, test_handler)
             Testing...
         """
-        self.command_bus.execute(command, handler)
+        return self.command_bus.execute(command, handler)
 
     def dispatch(
         self, event: Event, handlers: Sequence[SupportsHandle] | None = None
