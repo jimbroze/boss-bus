@@ -6,7 +6,7 @@ Classes:
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Sequence, Type, Union
+from typing import TYPE_CHECKING, Any, Sequence, Type, Union
 
 from typeguard import typeguard_ignore
 
@@ -51,7 +51,7 @@ class MessageBus:
         self,
         command: SpecificCommand,
         handler: CommandHandler[SpecificCommand] | None = None,
-    ) -> None:
+    ) -> Any:
         """Forwards a command to a CommandBus for execution.
 
         Example:
@@ -63,7 +63,7 @@ class MessageBus:
             >>> bus.execute(test_command, test_handler)
             Testing...
         """
-        self.command_bus.execute(command, handler)
+        return self.command_bus.execute(command, handler)
 
     def dispatch(
         self, event: Event, handlers: Sequence[SupportsHandle] | None = None

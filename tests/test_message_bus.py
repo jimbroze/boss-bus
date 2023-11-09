@@ -10,6 +10,8 @@ from tests.examples import (
     ExampleEventHandler,
     PrintCommand,
     PrintCommandHandler,
+    ReturnCommand,
+    ReturnCommandHandler,
 )
 
 
@@ -28,6 +30,15 @@ class TestMessageBus:
         bus = MessageBus()
 
         bus.execute(command, handler)
+
+    def test_execute_can_return_a_value(self) -> None:
+        command = ReturnCommand("Test the bus")
+        handler = ReturnCommandHandler()
+        bus = MessageBus()
+
+        result = bus.execute(command, handler)
+
+        assert result == "Test the bus"
 
     def test_an_event_cannot_be_executed(self) -> None:
         event = ExampleEvent("Test the bus")
