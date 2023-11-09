@@ -25,7 +25,7 @@ class ClassInstantiator(ClassLoader):
     def load(self, cls: obj) -> obj:
         pass
 
-    def load(self, cls: type[obj] | obj) -> obj:
+    def load(self, cls: Type[obj] | obj) -> obj:
         """Instantiates a class or returns an already instantiated instance."""
         if not isinstance(cls, type):
             return cls
@@ -33,7 +33,7 @@ class ClassInstantiator(ClassLoader):
         # noinspection PyTypeChecker
         return self.instantiate(cls)
 
-    def instantiate(self, cls: type[obj]) -> obj:
+    def instantiate(self, cls: Type[obj]) -> obj:
         """Instantiates a class and any simple dependencies it has."""
         dependencies = get_type_hints(cls.__init__)
         dependencies.pop(RETURN_ANNOTATION, None)
