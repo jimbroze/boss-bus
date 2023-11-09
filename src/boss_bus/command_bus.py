@@ -95,6 +95,16 @@ class CommandBus:
 
         del self._handlers[command_type]
 
+    def is_registered(
+        self,
+        command_type: Type[SpecificCommand],
+    ) -> bool:
+        """Checks if a command is registered with the bus."""
+        if command_type in self._handlers:
+            return True
+
+        return False
+
     @typechecked
     def execute(
         self,
