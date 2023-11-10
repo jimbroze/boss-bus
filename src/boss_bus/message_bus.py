@@ -115,9 +115,27 @@ class MessageBus:
         self.command_bus.remove_handler(message_type)
 
     def has_handlers(self, event_type: Type[Event]) -> int:
-        """Returns the number of handlers registered for a type of event."""
+        """Returns the number of handlers registered for a type of event.
+
+        Example:
+            >>> from tests.examples import ExampleEvent, ExampleEventHandler
+            >>> bus = MessageBus()
+            >>> bus.register_event(ExampleEvent, [ExampleEventHandler])
+            >>>
+            >>> bus.has_handlers(ExampleEvent)
+            1
+        """
         return self.event_bus.has_handlers(event_type)
 
     def is_registered(self, command_type: Type[SpecificCommand]) -> bool:
-        """Checks if a command is registered with the command bus."""
+        """Returns whether a command is registered with the command bus.
+
+        Example:
+            >>> from tests.examples import PrintCommand, PrintCommandHandler
+            >>> bus = MessageBus()
+            >>> bus.register_command(PrintCommand, PrintCommandHandler)
+            >>>
+            >>> bus.is_registered(PrintCommand)
+            True
+        """
         return self.command_bus.is_registered(command_type)
