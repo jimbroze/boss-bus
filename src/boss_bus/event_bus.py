@@ -58,7 +58,18 @@ class EventBus:
         event_type: Type[Event],
         handlers: Sequence[SupportsHandle],
     ) -> None:
-        """Register handlers that will dispatch a type of Event."""
+        """Register handlers that will dispatch a type of Event.
+
+        Handlers must be objects with a handle() method.
+
+        Example:
+            >>> from tests.examples import ExampleEvent, ExampleEventHandler, OtherEventHandler
+            >>> bus = EventBus()
+            >>> bus.add_handlers(ExampleEvent, [ExampleEventHandler(), OtherEventHandler()])
+            >>>
+            >>> bus.has_handlers(ExampleEvent)
+            2
+        """
         for handler in handlers:  # pragma: no branch
             _validate_handler(handler)
             self._handlers[event_type].append(handler)
@@ -69,7 +80,32 @@ class EventBus:
         event_type: Type[Event],
         handlers: Sequence[SupportsHandle] | None = None,
     ) -> None:
-        """Remove previously registered handlers."""
+        """Remove previously registered handlers.
+
+        If handlers are provided, only these will be removed.
+
+        Example:
+            >>> from tests.examples import ExampleEvent, ExampleEventHandler, OtherEventHandler
+            >>> bus = EventBus()
+            >>> handler1 = ExampleEventHandler()
+            >>> bus.add_handlers(ExampleEvent, [handler1, OtherEventHandler()])
+            >>>
+            >>> bus.remove_handlers(ExampleEvent, [handler1])
+            >>> bus.has_handlers(ExampleEvent)
+            1
+
+        Defaults to removing all handlers for an event if no handlers are provided.
+
+        Example:
+            >>> from tests.examples import ExampleEvent, ExampleEventHandler, OtherEventHandler
+            >>> bus = EventBus()
+            >>> handler1 = ExampleEventHandler()
+            >>> bus.add_handlers(ExampleEvent, [handler1, OtherEventHandler()])
+            >>>
+            >>> bus.remove_handlers(ExampleEvent)
+            >>> bus.has_handlers(ExampleEvent)
+            0
+        """
         if handlers is None:
             handlers = []
 
@@ -87,7 +123,16 @@ class EventBus:
             self._handlers[event_type] = []
 
     def has_handlers(self, event_type: Type[Event]) -> int:
-        """Returns the number of handlers registered for a type of event."""
+        """Returns the number of handlers registered for a type of event.
+
+        Example:
+            >>> from tests.examples import ExampleEvent, ExampleEventHandler
+            >>> bus = EventBus()
+            >>> bus.add_handlers(ExampleEvent, [ExampleEventHandler()])
+            >>>
+            >>> bus.has_handlers(ExampleEvent)
+            1
+        """
         return len(self._handlers[event_type])
 
     @typechecked
