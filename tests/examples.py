@@ -22,6 +22,13 @@ class ExampleEventHandler(SupportsHandle):
         event.print_event_data()
 
 
+class OtherEventHandler(SupportsHandle):
+    """An event handler purely for use in tests."""
+
+    def handle(self, event: ExampleEvent) -> None:
+        """Handle a test event."""
+
+
 class PrintCommand(Command):
     """A command purely for use in tests."""
 

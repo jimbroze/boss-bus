@@ -86,7 +86,16 @@ class MessageBus:
         message_type: Type[Event],
         handlers: Sequence[Type[SupportsHandle] | SupportsHandle],
     ) -> None:
-        """Register handlers that will dispatch a type of Event."""
+        """Register handlers that can dispatch a type of Event.
+
+        Example:
+            >>> from tests.examples import ExampleEvent, ExampleEventHandler, OtherEventHandler
+            >>> bus = MessageBus()
+            >>> bus.register_event(ExampleEvent, [ExampleEventHandler, OtherEventHandler])
+            >>>
+            >>> bus.has_handlers(ExampleEvent)
+            2
+        """
         loaded_handlers = [self.loader.load(handler) for handler in handlers]
         self.event_bus.add_handlers(message_type, loaded_handlers)
 
@@ -98,20 +107,68 @@ class MessageBus:
             Type[CommandHandler[SpecificCommand]], CommandHandler[SpecificCommand]
         ],
     ) -> None:
-        """Register a handler that will dispatch a type of Command."""
+        """Register a handler that can dispatch a type of Command.
+
+        Example:
+            >>> from tests.examples import PrintCommand, PrintCommandHandler
+            >>> bus = MessageBus()
+            >>> bus.register_command(PrintCommand, PrintCommandHandler)
+            >>>
+            >>> bus.is_registered(PrintCommand)
+            True
+        """
         loaded_handler = self.loader.load(handler)
         self.command_bus.register_handler(message_type, loaded_handler)
 
     def deregister_event(
         self,
         message_type: Type[Event],
-        handlers: Sequence[SupportsHandle],
+        handlers: Sequence[SupportsHandle] | None = None,
     ) -> None:
-        """Remove handlers that are registered to dispatch an Event."""
+        """Remove handlers that are registered to dispatch an Event.
+
+        Todo:
+            * Allow uninstantiated classes like register
+            * Match handler based on type, not instance
+
+        If handlers are provided, only these will be removed.
+
+        Example:
+            >>> from tests.examples import ExampleEvent, ExampleEventHandler, OtherEventHandler
+            >>> bus = MessageBus()
+            >>> handler = ExampleEventHandler()
+            >>> bus.register_event(ExampleEvent, [handler, OtherEventHandler])
+            >>>
+            >>> bus.deregister_event(ExampleEvent, [handler])
+            >>> bus.has_handlers(ExampleEvent)
+            1
+
+        Defaults to removing all handlers for an event if no handlers are provided.
+
+        Example:
+            >>> from tests.examples import ExampleEvent, ExampleEventHandler, OtherEventHandler
+            >>> bus = MessageBus()
+            >>> handler = ExampleEventHandler()
+            >>> bus.register_event(ExampleEvent, [ExampleEventHandler, OtherEventHandler])
+            >>>
+            >>> bus.deregister_event(ExampleEvent)
+            >>> bus.has_handlers(ExampleEvent)
+            0
+        """
         self.event_bus.remove_handlers(message_type, handlers)
 
     def deregister_command(self, message_type: Type[SpecificCommand]) -> None:
-        """Remove a handler that is registered to execute a Command."""
+        """Remove a handler that is registered to execute a Command.
+
+        Example:
+            >>> from tests.examples import PrintCommand, PrintCommandHandler
+            >>> bus = MessageBus()
+            >>> bus.register_command(PrintCommand, PrintCommandHandler)
+            >>>
+            >>> bus.deregister_command(PrintCommand)
+            >>> bus.is_registered(PrintCommand)
+            False
+        """
         self.command_bus.remove_handler(message_type)
 
     def has_handlers(self, event_type: Type[Event]) -> int:
