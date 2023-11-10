@@ -86,11 +86,8 @@ class EventBus:
         if len(handlers) == 0:  # pragma: no branch
             self._handlers[event_type] = []
 
-    def has_handlers(
-        self,
-        event_type: Type[Event],
-    ) -> int:
-        """Remove previously registered handlers."""
+    def has_handlers(self, event_type: Type[Event]) -> int:
+        """Returns the number of handlers registered for a type of event."""
         return len(self._handlers[event_type])
 
     @typechecked

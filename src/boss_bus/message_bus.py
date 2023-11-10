@@ -113,3 +113,11 @@ class MessageBus:
     def deregister_command(self, message_type: Type[SpecificCommand]) -> None:
         """Remove a handler that is registered to execute a Command."""
         self.command_bus.remove_handler(message_type)
+
+    def has_handlers(self, event_type: Type[Event]) -> int:
+        """Returns the number of handlers registered for a type of event."""
+        return self.event_bus.has_handlers(event_type)
+
+    def is_registered(self, command_type: Type[SpecificCommand]) -> bool:
+        """Checks if a command is registered with the command bus."""
+        return self.command_bus.is_registered(command_type)

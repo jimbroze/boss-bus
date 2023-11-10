@@ -83,10 +83,7 @@ class CommandBus:
         self._handlers[command_type] = handler
 
     @typechecked
-    def remove_handler(
-        self,
-        command_type: Type[SpecificCommand],
-    ) -> None:
+    def remove_handler(self, command_type: Type[SpecificCommand]) -> None:
         """Remove a previously registered handler."""
         if command_type not in self._handlers:
             raise MissingHandlerError(
@@ -95,10 +92,7 @@ class CommandBus:
 
         del self._handlers[command_type]
 
-    def is_registered(
-        self,
-        command_type: Type[SpecificCommand],
-    ) -> bool:
+    def is_registered(self, command_type: Type[SpecificCommand]) -> bool:
         """Checks if a command is registered with the bus."""
         if command_type in self._handlers:
             return True
