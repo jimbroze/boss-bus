@@ -77,14 +77,33 @@ class CommandBus:
         command_type: Type[SpecificCommand],
         handler: CommandHandler[SpecificCommand],
     ) -> None:
-        """Register a single handler that will execute a type of Command."""
+        """Register a single handler that will execute a type of Command.
+
+        Example:
+            >>> from tests.examples import PrintCommand, PrintCommandHandler
+            >>> bus = CommandBus()
+            >>> bus.register_handler(PrintCommand, PrintCommandHandler())
+            >>>
+            >>> bus.is_registered(PrintCommand)
+            True
+        """
         _validate_handler(command_type, handler)
 
         self._handlers[command_type] = handler
 
     @typechecked
     def remove_handler(self, command_type: Type[SpecificCommand]) -> None:
-        """Remove a previously registered handler."""
+        """Remove a previously registered handler.
+
+        Example:
+            >>> from tests.examples import PrintCommand, PrintCommandHandler
+            >>> bus = CommandBus()
+            >>> bus.register_handler(PrintCommand, PrintCommandHandler())
+            >>>
+            >>> bus.remove_handler(PrintCommand)
+            >>> bus.is_registered(PrintCommand)
+            False
+        """
         if command_type not in self._handlers:
             raise MissingHandlerError(
                 f"A handler has not been registered for the command '{command_type.__name__}'"
@@ -93,7 +112,16 @@ class CommandBus:
         del self._handlers[command_type]
 
     def is_registered(self, command_type: Type[SpecificCommand]) -> bool:
-        """Checks if a command is registered with the bus."""
+        """Checks if a command is registered with the bus.
+
+        Example:
+            >>> from tests.examples import PrintCommand, PrintCommandHandler
+            >>> bus = CommandBus()
+            >>> bus.register_handler(PrintCommand, PrintCommandHandler())
+            >>>
+            >>> bus.is_registered(PrintCommand)
+            True
+        """
         if command_type in self._handlers:
             return True
 
