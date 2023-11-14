@@ -1,7 +1,13 @@
-from lagom import Container
+import pytest
 
-from boss_bus.loader.lagom_loader import LagomLoader
 from tests.loader.examples import CustomDeps, LayeredDeps, NoDeps
+
+try:
+    from lagom import Container
+
+    from boss_bus.loader.lagom_loader import LagomLoader
+except ImportError:  # pragma: no cover
+    pytest.skip("lagom dependency not installed", allow_module_level=True)
 
 
 class TestClassInstantiator:

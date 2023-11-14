@@ -201,3 +201,23 @@ class TestCommandBus:
 
         with pytest.raises(MissingHandlerError):
             bus.remove_handler(ExplosionCommand)
+
+    def test_is_registered_returns_false_for_non_registered_command(
+        self,
+    ) -> None:
+        handler = ExplosionCommandHandler()
+        bus = CommandBus()
+
+        bus.register_handler(ExplosionCommand, handler)
+
+        assert bus.is_registered(FloodCommand) is False
+
+    def test_is_registered_returns_true_for_registered_command(
+        self,
+    ) -> None:
+        handler = ExplosionCommandHandler()
+        bus = CommandBus()
+
+        bus.register_handler(ExplosionCommand, handler)
+
+        assert bus.is_registered(ExplosionCommand) is True

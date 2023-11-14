@@ -12,6 +12,8 @@ from boss_bus.event_bus import (
 from boss_bus.handler import MissingHandlerError
 from boss_bus.interface import SupportsHandle
 
+from .examples import ExampleEvent
+
 if TYPE_CHECKING:
     from _pytest.capture import CaptureFixture
 
@@ -198,3 +200,24 @@ class TestEventBus:
         bus = EventBus()
 
         bus.remove_handlers(ExplosionEvent)
+
+    def test_has_handlers_returns_false_for_non_registered_command(
+        self,
+    ) -> None:
+        bus = EventBus()
+        handler1 = ExplosionEventHandler()
+
+        bus.add_handlers(ExplosionEvent, [handler1])
+
+        assert bus.has_handlers(ExampleEvent) == 0
+
+    def test_has_handlers_returns_number_of_registered_handlers(
+        self,
+    ) -> None:
+        bus = EventBus()
+        handler1 = ExplosionEventHandler()
+        handler2 = SecondExplosionEventHandler()
+
+        bus.add_handlers(ExplosionEvent, [handler1, handler2])
+
+        assert bus.has_handlers(ExplosionEvent) == 2

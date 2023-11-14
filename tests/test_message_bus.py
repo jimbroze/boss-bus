@@ -99,6 +99,16 @@ class TestMessageBus:
 
         assert handler not in event_bus._handlers.get(ExampleEvent, [])  # noqa: SLF001
 
+    def test_is_registered_returns_false_for_command_not_registered(self) -> None:
+        bus = MessageBus()
+
+        assert bus.is_registered(ReturnCommand) is False
+
+    def test_has_handlers_returns_zero_for_event_not_registered(self) -> None:
+        bus = MessageBus()
+
+        assert bus.has_handlers(ExampleEvent) == 0
+
     def test_default_loader_instantiates_event_classes(
         self, capsys: CaptureFixture[str]
     ) -> None:
