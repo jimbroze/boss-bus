@@ -82,7 +82,7 @@ class EventBus:
     ) -> None:
         """Remove previously registered handlers.
 
-        If handlers are provided, only these will be removed.
+        If handlers are provided, handlers of this class will be removed.
 
         Example:
             >>> from tests.examples import ExampleEvent, ExampleEventHandler, OtherEventHandler
@@ -107,20 +107,25 @@ class EventBus:
             0
         """
         if handlers is None:
-            handlers = []
+            self._handlers[event_type] = []
+            return
 
-        for handler in handlers:
+        for handler in handlers:  # pragma: no branch
             _validate_handler(handler)
 
-            if handler not in self._handlers[event_type]:
+            matching_handlers = [
+                registered_handler
+                for registered_handler in self._handlers[event_type]
+                if type(handler) == type(registered_handler)
+            ]
+
+            if not matching_handlers:
                 raise MissingHandlerError(
                     f"The handler '{handler}' has not been registered for event '{event_type.__name__}'"
                 )
 
-            self._handlers[event_type].remove(handler)
-
-        if len(handlers) == 0:  # pragma: no branch
-            self._handlers[event_type] = []
+            for matched_handler in matching_handlers:
+                self._handlers[event_type].remove(matched_handler)
 
     def has_handlers(self, event_type: Type[Event]) -> int:
         """Returns the number of handlers registered for a type of event.

@@ -118,28 +118,25 @@ class MessageBus:
             True
         """
         loaded_handler = self.loader.load(handler)
+
         self.command_bus.register_handler(message_type, loaded_handler)
 
     def deregister_event(
         self,
         message_type: Type[Event],
-        handlers: Sequence[SupportsHandle] | None = None,
+        handlers: Sequence[Type[SupportsHandle] | SupportsHandle] | None = None,
     ) -> None:
         """Remove handlers that are registered to dispatch an Event.
 
-        Todo:
-            * Allow uninstantiated classes like register
-            * Match handler based on type, not instance
-
-        If handlers are provided, only these will be removed.
+        If handlers are provided, handlers of that class will be removed.
 
         Example:
             >>> from tests.examples import ExampleEvent, ExampleEventHandler, OtherEventHandler
             >>> bus = MessageBus()
-            >>> handler = ExampleEventHandler()
-            >>> bus.register_event(ExampleEvent, [handler, OtherEventHandler])
+            >>> example_handler = ExampleEventHandler()
+            >>> bus.register_event(ExampleEvent, [example_handler, OtherEventHandler])
             >>>
-            >>> bus.deregister_event(ExampleEvent, [handler])
+            >>> bus.deregister_event(ExampleEvent, [OtherEventHandler])
             >>> bus.has_handlers(ExampleEvent)
             1
 
@@ -148,14 +145,17 @@ class MessageBus:
         Example:
             >>> from tests.examples import ExampleEvent, ExampleEventHandler, OtherEventHandler
             >>> bus = MessageBus()
-            >>> handler = ExampleEventHandler()
             >>> bus.register_event(ExampleEvent, [ExampleEventHandler, OtherEventHandler])
             >>>
             >>> bus.deregister_event(ExampleEvent)
             >>> bus.has_handlers(ExampleEvent)
             0
         """
-        self.event_bus.remove_handlers(message_type, handlers)
+        if handlers is None:
+            return self.event_bus.remove_handlers(message_type)
+
+        loaded_handlers = [self.loader.load(handler) for handler in handlers]
+        return self.event_bus.remove_handlers(message_type, loaded_handlers)
 
     def deregister_command(self, message_type: Type[SpecificCommand]) -> None:
         """Remove a handler that is registered to execute a Command.

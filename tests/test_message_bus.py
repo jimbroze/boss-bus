@@ -8,6 +8,7 @@ from boss_bus.message_bus import MessageBus
 from tests.examples import (
     ExampleEvent,
     ExampleEventHandler,
+    OtherEventHandler,
     PrintCommand,
     PrintCommandHandler,
     ReturnCommand,
@@ -99,6 +100,16 @@ class TestMessageBus:
 
         assert handler not in event_bus._handlers.get(ExampleEvent, [])  # noqa: SLF001
 
+    def test_all_events_deregister_if_no_handlers_provided(self) -> None:
+        event_bus = EventBus()
+        bus = MessageBus(event_bus=event_bus)
+
+        bus.register_event(ExampleEvent, [ExampleEventHandler, OtherEventHandler])
+
+        bus.deregister_event(ExampleEvent)
+
+        assert bus.has_handlers(ExampleEvent) == 0
+
     def test_is_registered_returns_false_for_command_not_registered(self) -> None:
         bus = MessageBus()
 
@@ -132,3 +143,11 @@ class TestMessageBus:
 
         captured = capsys.readouterr()
         assert captured.out == "Testing...\n"
+
+    def test_default_loader_can_be_used_to_deregister_events(self) -> None:
+        bus = MessageBus()
+
+        bus.register_event(ExampleEvent, [ExampleEventHandler(), OtherEventHandler()])
+        bus.deregister_event(ExampleEvent, [ExampleEventHandler])
+
+        assert bus.has_handlers(ExampleEvent) == 1
