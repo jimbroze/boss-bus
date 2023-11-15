@@ -128,7 +128,7 @@ class MessageBus:
     ) -> None:
         """Remove handlers that are registered to dispatch an Event.
 
-        If handlers are provided, only these will be removed.
+        If handlers are provided, handlers of that class will be removed.
 
         Example:
             >>> from tests.examples import ExampleEvent, ExampleEventHandler, OtherEventHandler
@@ -152,11 +152,10 @@ class MessageBus:
             0
         """
         if handlers is None:
-            handlers = []
+            return self.event_bus.remove_handlers(message_type)
 
         loaded_handlers = [self.loader.load(handler) for handler in handlers]
-
-        self.event_bus.remove_handlers(message_type, loaded_handlers)
+        return self.event_bus.remove_handlers(message_type, loaded_handlers)
 
     def deregister_command(self, message_type: Type[SpecificCommand]) -> None:
         """Remove a handler that is registered to execute a Command.
