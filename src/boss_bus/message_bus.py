@@ -128,10 +128,6 @@ class MessageBus:
     ) -> None:
         """Remove handlers that are registered to dispatch an Event.
 
-        Todo:
-            * Allow uninstantiated classes like register
-            * Match handler based on type, not instance
-
         If handlers are provided, only these will be removed.
 
         Example:
