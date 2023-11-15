@@ -112,12 +112,18 @@ class EventBus:
         for handler in handlers:
             _validate_handler(handler)
 
-            if handler not in self._handlers[event_type]:
+            matching_handlers = [
+                registered_handler
+                for registered_handler in self._handlers[event_type]
+                if type(handler) == type(registered_handler)
+            ]
+
+            if matching_handlers:
+                self._handlers[event_type].remove(matching_handlers[0])
+            else:
                 raise MissingHandlerError(
                     f"The handler '{handler}' has not been registered for event '{event_type.__name__}'"
                 )
-
-            self._handlers[event_type].remove(handler)
 
         if len(handlers) == 0:  # pragma: no branch
             self._handlers[event_type] = []

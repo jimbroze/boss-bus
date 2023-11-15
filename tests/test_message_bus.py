@@ -8,6 +8,7 @@ from boss_bus.message_bus import MessageBus
 from tests.examples import (
     ExampleEvent,
     ExampleEventHandler,
+    OtherEventHandler,
     PrintCommand,
     PrintCommandHandler,
     ReturnCommand,
@@ -132,3 +133,11 @@ class TestMessageBus:
 
         captured = capsys.readouterr()
         assert captured.out == "Testing...\n"
+
+    def test_default_loader_can_be_used_to_deregister_events(self) -> None:
+        bus = MessageBus()
+
+        bus.register_event(ExampleEvent, [ExampleEventHandler(), OtherEventHandler()])
+        bus.deregister_event(ExampleEvent, [ExampleEventHandler])
+
+        assert bus.has_handlers(ExampleEvent) == 1

@@ -201,6 +201,17 @@ class TestEventBus:
 
         bus.remove_handlers(ExplosionEvent)
 
+    def test_remove_handlers_matches_based_on_type_not_instance(self) -> None:
+        handler1 = ExplosionEventHandler()
+        handler2 = ExplosionEventHandler()
+        bus = EventBus()
+
+        bus.add_handlers(ExplosionEvent, [handler1])
+
+        bus.remove_handlers(ExplosionEvent, [handler2])
+
+        assert bus.has_handlers(ExplosionEvent) == 0
+
     def test_has_handlers_returns_false_for_non_registered_command(
         self,
     ) -> None:
