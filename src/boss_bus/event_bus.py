@@ -22,6 +22,8 @@ from boss_bus.interface import Message, SupportsHandle
 class Event(Message):
     """A form of message which can have multiple handlers."""
 
+    message_type: str = "event"
+
 
 SpecificEvent = TypeVar("SpecificEvent", bound=Event)
 

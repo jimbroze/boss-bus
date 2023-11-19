@@ -24,6 +24,8 @@ from ._utils.typing import get_annotations, type_matches
 class Command(Message):
     """A form of message which only has one handler."""
 
+    message_type: str = "command"
+
 
 SpecificCommand = TypeVar("SpecificCommand", bound=Command)
 

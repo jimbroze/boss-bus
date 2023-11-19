@@ -7,11 +7,19 @@ Classes:
 
 from __future__ import annotations
 
+from abc import ABC
 from typing import Any, Protocol, TypeVar, runtime_checkable
 
 
-class Message:
+class Message(ABC):
     """An abstract DTO for use with handlers."""
+
+    message_type: str = "message"
+
+    @property
+    def message_name(self) -> str:
+        """Defines the name of a message being logged."""
+        return type(self).__name__
 
 
 SpecificMessage = TypeVar("SpecificMessage", bound=Message)

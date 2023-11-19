@@ -6,6 +6,8 @@ import logging
 from abc import ABC
 from typing import Any, Callable, ClassVar, cast
 
+from boss_bus.command_bus import Command
+from boss_bus.event_bus import Event
 from boss_bus.interface import Message, SpecificMessage
 from boss_bus.middleware.middleware import Middleware
 
@@ -13,13 +15,7 @@ from boss_bus.middleware.middleware import Middleware
 class LoggingMessage(Message, ABC):
     """A form of message that submits logs when being handled."""
 
-    message_type: str = "message"
     message_verbs: ClassVar[list[str]] = ["handle", "handled", "handling"]
-
-    @property
-    def message_name(self) -> str:
-        """Defines the name of a message being logged."""
-        return type(self).__name__
 
     def pre_handle_log(self) -> str:
         """Creates some text to be logged before handling."""
@@ -43,17 +39,15 @@ class LoggingMessage(Message, ABC):
         return f"Failed {handling} {message} <{name}>"
 
 
-class LoggingCommand(LoggingMessage):
+class LoggingCommand(LoggingMessage, Command):
     """A form of command that submits logs when being handled."""
 
-    message_type: str = "command"
     message_verbs: ClassVar[list[str]] = ["execute", "executed", "executing"]
 
 
-class LoggingEvent(LoggingMessage):
+class LoggingEvent(LoggingMessage, Event):
     """A form of event that submits logs when being handled."""
 
-    message_type: str = "event"
     message_verbs: ClassVar[list[str]] = ["dispatch", "dispatched", "dispatching"]
 
 

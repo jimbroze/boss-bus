@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import logging
 
-from boss_bus.command_bus import Command, CommandHandler
-from boss_bus.event_bus import Event
+from boss_bus.command_bus import CommandHandler
 from boss_bus.interface import SupportsHandle
 from boss_bus.middleware.log import LoggingCommand, LoggingEvent
 
 
-class LogTestCommand(Command, LoggingCommand):
+class LogTestCommand(LoggingCommand):
     def __init__(self, command_data: str):
         """Creates a command for tests."""
         self.command_data = command_data
@@ -27,7 +26,7 @@ class LoggingCommandHandler(CommandHandler[LogTestCommand]):
         command.log_command_data()
 
 
-class LogTestEvent(Event, LoggingEvent):
+class LogTestEvent(LoggingEvent):
     def __init__(self, event_data: str):
         """Creates an event for tests."""
         self.event_data = event_data
