@@ -18,6 +18,10 @@ from boss_bus.command_bus import (
 from boss_bus.event_bus import Event, EventBus
 from boss_bus.interface import SupportsHandle  # noqa: TCH001
 from boss_bus.loader.instantiator import ClassInstantiator
+from boss_bus.middleware.log import (
+    LoggingMessage,
+    MessageLogger,
+)
 
 if TYPE_CHECKING:
     from boss_bus.loader import ClassLoader
@@ -41,11 +45,13 @@ class MessageBus:
         class_loader: ClassLoader | None = None,
         command_bus: CommandBus | None = None,
         event_bus: EventBus | None = None,
+        logger: MessageLogger | None = None,
     ):
         """Creates a Message Bus."""
         self.loader = class_loader if class_loader is not None else ClassInstantiator()
         self.command_bus = command_bus if command_bus is not None else CommandBus()
         self.event_bus = event_bus if event_bus is not None else EventBus()
+        self.logger = logger if logger is not None else MessageLogger()
 
     def execute(
         self,
@@ -63,7 +69,13 @@ class MessageBus:
             >>> bus.execute(test_command, test_handler)
             Testing...
         """
-        return self.command_bus.execute(command, handler)
+        if not isinstance(command, LoggingMessage):
+            return self.command_bus.execute(command, handler)
+
+        def loaded_bus(c: SpecificCommand | LoggingMessage) -> Any:  # type: ignore[unreachable]
+            return self.command_bus.execute(c, handler)
+
+        return self.logger.handle(command, loaded_bus)
 
     def dispatch(
         self, event: Event, handlers: Sequence[SupportsHandle] | None = None
@@ -79,7 +91,14 @@ class MessageBus:
             >>> bus.dispatch(test_event, [test_handler])
             Testing...
         """
-        self.event_bus.dispatch(event, handlers)
+        if not isinstance(event, LoggingMessage):
+            self.event_bus.dispatch(event, handlers)
+            return
+
+        def loaded_bus(e: Event | LoggingMessage) -> None:
+            return self.event_bus.dispatch(e, handlers)  # type: ignore[arg-type]
+
+        self.logger.handle(event, loaded_bus)
 
     def register_event(
         self,
