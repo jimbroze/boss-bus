@@ -6,8 +6,7 @@ Classes:
 """
 from __future__ import annotations
 
-from functools import partial
-from typing import TYPE_CHECKING, Any, Callable, Sequence, Type, Union
+from typing import TYPE_CHECKING, Any, Sequence, Type, Union
 
 from typeguard import typeguard_ignore
 
@@ -17,15 +16,15 @@ from boss_bus.command_bus import (
     SpecificCommand,
 )
 from boss_bus.event_bus import Event, EventBus, SpecificEvent
-from boss_bus.interface import SpecificMessage, SupportsHandle  # noqa: TCH001
+from boss_bus.interface import SupportsHandle  # noqa: TCH001
 from boss_bus.loader.instantiator import ClassInstantiator
 from boss_bus.middleware.log import (
     MessageLogger,
 )
+from boss_bus.middleware.middleware import create_middleware_chain
 
 if TYPE_CHECKING:
     from boss_bus.loader import ClassLoader
-    from boss_bus.middleware.middleware import Middleware
 
 
 class MessageBus:
@@ -75,7 +74,7 @@ class MessageBus:
             return self.command_bus.execute(c, handler)
 
         # noinspection PyTypeChecker
-        bus = self.create_middleware_chain(bus_closure, [self.logger])
+        bus = create_middleware_chain(bus_closure, [self.logger])
         return bus(command)
 
     def dispatch(
@@ -97,7 +96,7 @@ class MessageBus:
             return self.event_bus.dispatch(e, handlers)
 
         # noinspection PyTypeChecker
-        bus = self.create_middleware_chain(bus_closure, [self.logger])
+        bus = create_middleware_chain(bus_closure, [self.logger])
         bus(event)
 
     def register_event(
@@ -214,23 +213,3 @@ class MessageBus:
             True
         """
         return self.command_bus.is_registered(command_type)
-
-    def create_middleware_chain(
-        self,
-        bus_closure: Callable[[SpecificMessage], Any],
-        middlewares: list[Middleware],
-    ) -> Callable[[SpecificMessage], Any]:
-        """Creates a chain of middleware finishing with a bus."""
-
-        def middleware_closure(
-            current_middleware: Middleware,
-            next_closure: Callable[[SpecificMessage], Any],
-            message: SpecificMessage,
-        ) -> Any:
-            return current_middleware.handle(message, next_closure)
-
-        next_middleware = bus_closure
-        for middleware in reversed(middlewares):
-            next_middleware = partial(middleware_closure, middleware, next_middleware)
-
-        return next_middleware
