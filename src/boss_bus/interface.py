@@ -7,7 +7,14 @@ Classes:
 
 from __future__ import annotations
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Protocol, TypeVar, runtime_checkable
+
+
+class Message:
+    """An abstract DTO for use with handlers."""
+
+
+SpecificMessage = TypeVar("SpecificMessage", bound=Message)
 
 
 @runtime_checkable

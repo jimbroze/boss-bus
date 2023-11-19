@@ -11,16 +11,19 @@ Classes:
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Any, Sequence, Type
+from typing import Any, Sequence, Type, TypeVar
 
 from typeguard import TypeCheckError, typechecked
 
 from boss_bus.handler import MissingHandlerError
-from boss_bus.interface import SupportsHandle
+from boss_bus.interface import Message, SupportsHandle
 
 
-class Event:
+class Event(Message):
     """A form of message which can have multiple handlers."""
+
+
+SpecificEvent = TypeVar("SpecificEvent", bound=Event)
 
 
 class MissingEventError(Exception):

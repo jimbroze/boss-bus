@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import logging
 from abc import ABC
-from typing import Any, Callable, ClassVar
+from typing import Any, Callable, ClassVar, cast
+
+from boss_bus.interface import Message, SpecificMessage
+from boss_bus.middleware.middleware import Middleware
 
 
-class LoggingMessage(ABC):
+class LoggingMessage(Message, ABC):
     """A form of message that submits logs when being handled."""
 
     message_type: str = "message"
@@ -54,7 +57,7 @@ class LoggingEvent(LoggingMessage):
     message_verbs: ClassVar[list[str]] = ["dispatch", "dispatched", "dispatching"]
 
 
-class MessageLogger:
+class MessageLogger(Middleware):
     """Connects a logger to be used for automated message logging."""
 
     def __init__(self, logger: logging.Logger | None = None):
@@ -62,13 +65,19 @@ class MessageLogger:
         self.logger = logger if logger is not None else logging.getLogger()
 
     def handle(
-        self, message: LoggingMessage, loaded_bus: Callable[[LoggingMessage], Any]
+        self,
+        message: SpecificMessage,
+        next_middleware: Callable[[SpecificMessage], Any],
     ) -> Any:
         """Submits logs and handles messages."""
+        if not isinstance(message, LoggingMessage):
+            return next_middleware(message)
+
         self.logger.info(message.pre_handle_log())
 
         try:
-            result = loaded_bus(message)
+            m = cast(SpecificMessage, message)
+            result = next_middleware(m)
         except Exception:
             self.logger.exception(message.error_log())
             raise

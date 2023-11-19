@@ -15,11 +15,10 @@ from boss_bus.command_bus import (
     CommandHandler,
     SpecificCommand,
 )
-from boss_bus.event_bus import Event, EventBus
+from boss_bus.event_bus import Event, EventBus, SpecificEvent
 from boss_bus.interface import SupportsHandle  # noqa: TCH001
 from boss_bus.loader.instantiator import ClassInstantiator
 from boss_bus.middleware.log import (
-    LoggingMessage,
     MessageLogger,
 )
 
@@ -69,12 +68,11 @@ class MessageBus:
             >>> bus.execute(test_command, test_handler)
             Testing...
         """
-        if not isinstance(command, LoggingMessage):
-            return self.command_bus.execute(command, handler)
 
-        def loaded_bus(c: SpecificCommand | LoggingMessage) -> Any:  # type: ignore[unreachable]
+        def loaded_bus(c: SpecificCommand) -> Any:
             return self.command_bus.execute(c, handler)
 
+        # noinspection PyTypeChecker
         return self.logger.handle(command, loaded_bus)
 
     def dispatch(
@@ -91,13 +89,11 @@ class MessageBus:
             >>> bus.dispatch(test_event, [test_handler])
             Testing...
         """
-        if not isinstance(event, LoggingMessage):
-            self.event_bus.dispatch(event, handlers)
-            return
 
-        def loaded_bus(e: Event | LoggingMessage) -> None:
-            return self.event_bus.dispatch(e, handlers)  # type: ignore[arg-type]
+        def loaded_bus(e: SpecificEvent) -> None:
+            return self.event_bus.dispatch(e, handlers)
 
+        # noinspection PyTypeChecker
         self.logger.handle(event, loaded_bus)
 
     def register_event(
