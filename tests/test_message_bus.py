@@ -62,7 +62,7 @@ class TestMessageBus:
         bus = MessageBus()
 
         with pytest.raises(TypeCheckError):
-            bus.dispatch(command, handler)  # type: ignore[arg-type]
+            bus.dispatch(command, handler)  # type: ignore[arg-type, type-var]
 
     def test_command_registers_with_the_command_bus(self) -> None:
         handler = PrintCommandHandler()

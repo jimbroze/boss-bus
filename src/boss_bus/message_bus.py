@@ -15,9 +15,11 @@ from boss_bus.command_bus import (
     CommandHandler,
     SpecificCommand,
 )
-from boss_bus.event_bus import Event, EventBus
+from boss_bus.event_bus import Event, EventBus, SpecificEvent
 from boss_bus.interface import SupportsHandle  # noqa: TCH001
 from boss_bus.loader.instantiator import ClassInstantiator
+from boss_bus.middleware import DEFAULT_MIDDLEWARE
+from boss_bus.middleware.middleware import Middleware, create_middleware_chain
 
 if TYPE_CHECKING:
     from boss_bus.loader import ClassLoader
@@ -39,11 +41,13 @@ class MessageBus:
     def __init__(
         self,
         class_loader: ClassLoader | None = None,
+        middleware: list[Middleware] | None = None,
         command_bus: CommandBus | None = None,
         event_bus: EventBus | None = None,
     ):
         """Creates a Message Bus."""
         self.loader = class_loader if class_loader is not None else ClassInstantiator()
+        self.middleware = middleware if middleware is not None else DEFAULT_MIDDLEWARE
         self.command_bus = command_bus if command_bus is not None else CommandBus()
         self.event_bus = event_bus if event_bus is not None else EventBus()
 
@@ -56,30 +60,42 @@ class MessageBus:
 
         Example:
             >>> from tests.examples import PrintCommand, PrintCommandHandler
-            >>> bus = MessageBus()
+            >>> test_bus = MessageBus()
             >>> test_handler = PrintCommandHandler()
             >>> test_command = PrintCommand("Testing...")
             >>>
-            >>> bus.execute(test_command, test_handler)
+            >>> test_bus.execute(test_command, test_handler)
             Testing...
         """
-        return self.command_bus.execute(command, handler)
+
+        def bus_closure(c: SpecificCommand) -> Any:
+            return self.command_bus.execute(c, handler)
+
+        # noinspection PyTypeChecker
+        bus = create_middleware_chain(bus_closure, self.middleware)
+        return bus(command)
 
     def dispatch(
-        self, event: Event, handlers: Sequence[SupportsHandle] | None = None
+        self, event: SpecificEvent, handlers: Sequence[SupportsHandle] | None = None
     ) -> None:
         """Forwards an event to an EventBus for dispatching.
 
         Example:
             >>> from tests.examples import ExampleEvent, ExampleEventHandler
-            >>> bus = MessageBus()
+            >>> test_bus = MessageBus()
             >>> test_handler = ExampleEventHandler()
             >>> test_event = ExampleEvent("Testing...")
             >>>
-            >>> bus.dispatch(test_event, [test_handler])
+            >>> test_bus.dispatch(test_event, [test_handler])
             Testing...
         """
-        self.event_bus.dispatch(event, handlers)
+
+        def bus_closure(e: SpecificEvent) -> None:
+            return self.event_bus.dispatch(e, handlers)
+
+        # noinspection PyTypeChecker
+        bus = create_middleware_chain(bus_closure, self.middleware)
+        bus(event)
 
     def register_event(
         self,
@@ -118,7 +134,6 @@ class MessageBus:
             True
         """
         loaded_handler = self.loader.load(handler)
-
         self.command_bus.register_handler(message_type, loaded_handler)
 
     def deregister_event(
