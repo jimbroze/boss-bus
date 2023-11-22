@@ -15,6 +15,7 @@ from tests.middleware.examples import (
 )
 
 from boss_bus.message_bus import MessageBus
+from boss_bus.middleware.log import MessageLogger
 
 
 class TestMessageBusLogger:
@@ -55,3 +56,20 @@ class TestMessageBusLogger:
 
         bus.dispatch(ExampleEvent("Logging..."), [ExampleEventHandler()])
         assert len(caplog.record_tuples) == 0
+
+    def test_middleware_handle_in_correct_order(
+        self, caplog: LogCaptureFixture
+    ) -> None:
+        caplog.set_level(logging.INFO)
+        logger_first = logging.getLogger("first")
+        logger_second = logging.getLogger("second")
+        message_logger_first = MessageLogger(logger_first)
+        message_logger_second = MessageLogger(logger_second)
+        bus = MessageBus(middleware=[message_logger_first, message_logger_second])
+
+        bus.dispatch(LogTestEvent("Logging..."), [LoggingEventHandler()])
+        print(caplog.record_tuples)
+        assert caplog.record_tuples[0][0] == "first"
+        assert caplog.record_tuples[1][0] == "second"
+        assert caplog.record_tuples[3][0] == "second"
+        assert caplog.record_tuples[4][0] == "first"

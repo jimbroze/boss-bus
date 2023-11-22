@@ -18,10 +18,8 @@ from boss_bus.command_bus import (
 from boss_bus.event_bus import Event, EventBus, SpecificEvent
 from boss_bus.interface import SupportsHandle  # noqa: TCH001
 from boss_bus.loader.instantiator import ClassInstantiator
-from boss_bus.middleware.log import (
-    MessageLogger,
-)
-from boss_bus.middleware.middleware import create_middleware_chain
+from boss_bus.middleware import DEFAULT_MIDDLEWARE
+from boss_bus.middleware.middleware import Middleware, create_middleware_chain
 
 if TYPE_CHECKING:
     from boss_bus.loader import ClassLoader
@@ -43,15 +41,15 @@ class MessageBus:
     def __init__(
         self,
         class_loader: ClassLoader | None = None,
+        middleware: list[Middleware] | None = None,
         command_bus: CommandBus | None = None,
         event_bus: EventBus | None = None,
-        logger: MessageLogger | None = None,
     ):
         """Creates a Message Bus."""
         self.loader = class_loader if class_loader is not None else ClassInstantiator()
+        self.middleware = middleware if middleware is not None else DEFAULT_MIDDLEWARE
         self.command_bus = command_bus if command_bus is not None else CommandBus()
         self.event_bus = event_bus if event_bus is not None else EventBus()
-        self.logger = logger if logger is not None else MessageLogger()
 
     def execute(
         self,
@@ -74,7 +72,7 @@ class MessageBus:
             return self.command_bus.execute(c, handler)
 
         # noinspection PyTypeChecker
-        bus = create_middleware_chain(bus_closure, [self.logger])
+        bus = create_middleware_chain(bus_closure, self.middleware)
         return bus(command)
 
     def dispatch(
@@ -96,7 +94,7 @@ class MessageBus:
             return self.event_bus.dispatch(e, handlers)
 
         # noinspection PyTypeChecker
-        bus = create_middleware_chain(bus_closure, [self.logger])
+        bus = create_middleware_chain(bus_closure, self.middleware)
         bus(event)
 
     def register_event(

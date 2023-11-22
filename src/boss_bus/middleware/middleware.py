@@ -1,7 +1,5 @@
-"""Classes that load dependencies and use them to instantiate classes.
+"""Interfaces for classes that augment or supplement message handling."""
 
-Class loading classes should implement the Interface (ClassLoader)
-"""
 from __future__ import annotations
 
 from functools import partial
