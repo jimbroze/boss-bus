@@ -3,9 +3,12 @@
 
 from __future__ import annotations
 
-from typing import Type, get_type_hints, overload
+from typing import TYPE_CHECKING, Any, Dict, Type, get_type_hints, overload
 
 from boss_bus.loader import ClassLoader, obj
+
+if TYPE_CHECKING:
+    from boss_bus.message_bus import MessageBus
 
 RETURN_ANNOTATION = "return"
 
@@ -16,6 +19,10 @@ class ClassInstantiator(ClassLoader):
     Dependencies are instantiated recursively.
     Throws an exception if a class, or it's dependencies, cannot be instantiated
     """
+
+    def __init__(self, bus: MessageBus | None = None):
+        """Creates an object that instantiates simple dependencies."""
+        self.bus = bus
 
     @overload
     def load(self, cls: Type[obj]) -> obj:
@@ -35,7 +42,10 @@ class ClassInstantiator(ClassLoader):
 
     def instantiate(self, cls: Type[obj]) -> obj:
         """Instantiates a class and any simple dependencies it has."""
-        dependencies = get_type_hints(cls.__init__)
+        if self.bus is not None and isinstance(self.bus, cls):
+            return self.bus
+
+        dependencies = get_type_hints(cls.__init__, localns=self._get_locals())
         dependencies.pop(RETURN_ANNOTATION, None)
 
         dependency_instances = {
@@ -44,3 +54,7 @@ class ClassInstantiator(ClassLoader):
         }
 
         return cls(**dependency_instances)
+
+    def _get_locals(self) -> Dict[str, Type[Any]]:
+        bus_class = type(self.bus)
+        return {bus_class.__name__: bus_class} if self.bus is not None else {}

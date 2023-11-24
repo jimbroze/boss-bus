@@ -1,3 +1,9 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from boss_bus.message_bus import MessageBus
+
+
 class NoDeps:
     def __init__(self) -> None:
         self.output = "No dependencies loaded"
@@ -22,3 +28,8 @@ class CustomDeps:
         self.dep_one = dep_one
         self.dep_two = dep_two
         self.output = self.dep_one
+
+
+class BusDeps:
+    def __init__(self, bus: "MessageBus"):
+        self.bus = bus
