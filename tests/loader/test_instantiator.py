@@ -42,7 +42,7 @@ class TestClassInstantiator:
         self,
     ) -> None:
         bus = MessageBus()
-        loader = ClassInstantiator(bus)
+        loader = ClassInstantiator([bus])
 
         loaded_class = loader.load(BusDeps)
         assert isinstance(loaded_class, BusDeps)

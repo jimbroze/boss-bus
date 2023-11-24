@@ -3,12 +3,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Type, get_type_hints, overload
+from typing import (
+    Dict,
+    Sequence,
+    Type,
+    get_type_hints,
+    overload,
+)
 
 from boss_bus.loader import ClassLoader, obj
-
-if TYPE_CHECKING:
-    from boss_bus.message_bus import MessageBus
 
 RETURN_ANNOTATION = "return"
 
@@ -20,9 +23,9 @@ class ClassInstantiator(ClassLoader):
     Throws an exception if a class, or it's dependencies, cannot be instantiated
     """
 
-    def __init__(self, bus: MessageBus | None = None):
+    def __init__(self, dependencies: Sequence[object] = ()):
         """Creates an object that instantiates simple dependencies."""
-        self.bus = bus
+        self.dependencies = list(dependencies)
 
     @overload
     def load(self, cls: Type[obj]) -> obj:
@@ -42,8 +45,9 @@ class ClassInstantiator(ClassLoader):
 
     def instantiate(self, cls: Type[obj]) -> obj:
         """Instantiates a class and any simple dependencies it has."""
-        if self.bus is not None and isinstance(self.bus, cls):
-            return self.bus
+        for dep in self.dependencies:
+            if isinstance(dep, cls):
+                return dep
 
         dependencies = get_type_hints(cls.__init__, localns=self._get_locals())
         dependencies.pop(RETURN_ANNOTATION, None)
@@ -55,6 +59,5 @@ class ClassInstantiator(ClassLoader):
 
         return cls(**dependency_instances)
 
-    def _get_locals(self) -> Dict[str, Type[Any]]:
-        bus_class = type(self.bus)
-        return {bus_class.__name__: bus_class} if self.bus is not None else {}
+    def _get_locals(self) -> Dict[str, Type[object]]:
+        return {type(dep).__name__: type(dep) for dep in self.dependencies}
