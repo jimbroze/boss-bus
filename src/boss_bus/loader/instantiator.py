@@ -27,6 +27,10 @@ class ClassInstantiator(ClassLoader):
         """Creates an object that instantiates simple dependencies."""
         self.dependencies = list(dependencies)
 
+    def add_dependency(self, dependency: object) -> None:
+        """Add an already instantiated object dependency that can be retrieved."""
+        self.dependencies.append(dependency)
+
     @overload
     def load(self, cls: Type[obj]) -> obj:
         pass

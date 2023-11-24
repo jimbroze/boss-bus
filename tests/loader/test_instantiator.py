@@ -47,3 +47,14 @@ class TestClassInstantiator:
         loaded_class = loader.load(BusDeps)
         assert isinstance(loaded_class, BusDeps)
         assert loaded_class.bus == bus
+
+    def test_message_bus_instance_can_be_added_to_instantiator(
+        self,
+    ) -> None:
+        loader = ClassInstantiator()
+        bus = MessageBus()
+        loader.add_dependency(bus)
+
+        loaded_class = loader.load(BusDeps)
+        assert isinstance(loaded_class, BusDeps)
+        assert loaded_class.bus == bus
