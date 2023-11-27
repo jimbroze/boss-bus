@@ -8,6 +8,8 @@ from boss_bus.message_bus import MessageBus
 from tests.examples import (
     ExampleEvent,
     ExampleEventHandler,
+    NestedCommand,
+    NestedCommandHandler,
     OtherEventHandler,
     PrintCommand,
     PrintCommandHandler,
@@ -151,3 +153,11 @@ class TestMessageBus:
         bus.deregister_event(ExampleEvent, [ExampleEventHandler])
 
         assert bus.has_handlers(ExampleEvent) == 1
+
+    def test_default_loader_loads_the_message_bus_as_a_dependency(self) -> None:
+        bus = MessageBus()
+        bus.register_command(NestedCommand, NestedCommandHandler)
+
+        result = bus.execute(NestedCommand("Nested"))
+
+        assert result == "Nested"

@@ -47,6 +47,7 @@ class MessageBus:
     ):
         """Creates a Message Bus."""
         self.loader = class_loader if class_loader is not None else ClassInstantiator()
+        self.loader.add_dependency(self)
         self.middleware = middleware if middleware is not None else DEFAULT_MIDDLEWARE
         self.command_bus = command_bus if command_bus is not None else CommandBus()
         self.event_bus = event_bus if event_bus is not None else EventBus()
