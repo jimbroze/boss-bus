@@ -91,7 +91,6 @@ class TestLog:
         with pytest.raises(Exception):  # noqa: B017, PT011
             logger.handle(command, bus)
 
-        print(caplog.record_tuples)
         assert len(caplog.record_tuples) == 2
         assert "Failed executing" in caplog.record_tuples[1][2]
 
@@ -106,6 +105,5 @@ class TestLog:
         with pytest.raises(Exception):  # noqa: B017, PT011
             logger.handle(event, bus)
 
-        print(caplog.record_tuples)
         assert len(caplog.record_tuples) == 2
         assert "Failed dispatching" in caplog.record_tuples[1][2]
