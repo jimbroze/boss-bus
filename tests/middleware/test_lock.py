@@ -57,9 +57,11 @@ class TestLock:
 
         locker.handle(command, bus)
 
-        assert "Pre-nested call" in caplog.record_tuples[0][2]
-        assert "Post-nested call" in caplog.record_tuples[1][2]
-        assert "Nested call" in caplog.record_tuples[2][2]
+        assert (
+            caplog.text.index("Pre-nested call")
+            < caplog.text.index("Post-nested call")
+            < caplog.text.index("Nested call")
+        )
 
     def test_locking_event_postpones_nested_event(
         self, caplog: LogCaptureFixture
@@ -73,9 +75,11 @@ class TestLock:
 
         locker.handle(event, bus)
 
-        assert "Pre-nested call" in caplog.record_tuples[0][2]
-        assert "Post-nested call" in caplog.record_tuples[1][2]
-        assert "Nested call" in caplog.record_tuples[2][2]
+        assert (
+            caplog.text.index("Pre-nested call")
+            < caplog.text.index("Post-nested call")
+            < caplog.text.index("Nested call")
+        )
 
     def test_locked_bus_waits_to_execute_command_on_a_different_thread(self) -> None:
         locker = BusLocker()
