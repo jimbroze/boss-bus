@@ -1,3 +1,5 @@
+import time
+
 from boss_bus.command_bus import Command, CommandHandler
 from boss_bus.event_bus import Event
 from boss_bus.interface import SupportsHandle
@@ -86,3 +88,13 @@ class NestedCommandHandler(CommandHandler[NestedCommand]):
             ReturnCommand(command.command_data), ReturnCommandHandler()
         )
         return result
+
+
+class ReturnTimeCommand(Command):
+    pass
+
+
+class ReturnTimeCommandHandler(CommandHandler[ReturnTimeCommand]):
+    def handle(self, command: ReturnTimeCommand) -> float:  # noqa: ARG002
+        """Handle a test command."""
+        return time.time()
