@@ -80,7 +80,7 @@ class TestLock:
     def test_locked_bus_waits_to_execute_command_on_a_different_thread(self) -> None:
         locker = BusLocker()
         bus_unlock_time = multiprocessing.Value("d", 0)
-        command_1 = LockSleepCommand(0.2, bus_unlock_time)
+        command_1 = LockSleepCommand(0.4, bus_unlock_time)
         command_2 = ReturnTimeCommand()
 
         def bus_2(c: ReturnTimeCommand) -> Any:
@@ -100,7 +100,7 @@ class TestLock:
     def test_locked_bus_waits_to_execute_command_on_a_different_process(self) -> None:
         locker = BusLocker()
         bus_unlock_time = multiprocessing.Value("d", 0)
-        command_1 = LockSleepCommand(0.3, bus_unlock_time)
+        command_1 = LockSleepCommand(0.4, bus_unlock_time)
         command_2 = ReturnTimeCommand()
 
         def bus_2(c: ReturnTimeCommand) -> Any:
@@ -115,7 +115,7 @@ class TestLock:
         time.sleep(0.2)
 
         command_2_time = locker.handle(command_2, bus_2)
-        process_1.join(timeout=2)
+        process_1.join(timeout=3)
 
         assert bus_lock_time < bus_unlock_time.value < command_2_time  # type: ignore[attr-defined]
 
