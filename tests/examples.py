@@ -97,4 +97,5 @@ class ReturnTimeCommand(Command):
 class ReturnTimeCommandHandler(CommandHandler[ReturnTimeCommand]):
     def handle(self, command: ReturnTimeCommand) -> float:  # noqa: ARG002
         """Handle a test command."""
+        time.sleep(0.1)
         return time.time()
