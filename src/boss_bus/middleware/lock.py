@@ -94,7 +94,9 @@ class BusLocker(Middleware):
         self.queue.append((message, next_middleware))
 
     def _wait_for_unlock(self, message: Message) -> None:
-        timeout = time.time() + getattr(message, self.timeout_attr, self.timeout.value)  # type: ignore[attr-defined, operator]
+        timeout = time.time() + getattr(  # type: ignore[operator]
+            message, self.timeout_attr, self.timeout.value  # type: ignore[attr-defined]
+        )
         while self.bus_locked:
             if time.time() > timeout:
                 break
