@@ -1,4 +1,7 @@
 import logging
+import multiprocessing
+import threading
+import time
 
 from _pytest.logging import LogCaptureFixture
 from tests.examples import (
@@ -6,15 +9,22 @@ from tests.examples import (
     ExampleEventHandler,
     PrintCommand,
     PrintCommandHandler,
+    ReturnTimeCommand,
+    ReturnTimeCommandHandler,
 )
 from tests.middleware.examples import (
+    LockSleepCommand,
+    LockSleepCommandHandler,
     LoggingCommandHandler,
     LoggingEventHandler,
     LogTestCommand,
     LogTestEvent,
+    NestedLockingEvent,
+    NestedLockingEventHandler,
 )
 
 from boss_bus.message_bus import MessageBus
+from boss_bus.middleware.lock import BusLocker
 from boss_bus.middleware.log import MessageLogger
 
 
@@ -23,7 +33,7 @@ class TestMessageBusLogger:
         self, caplog: LogCaptureFixture
     ) -> None:
         caplog.set_level(logging.INFO)
-        bus = MessageBus()
+        bus = MessageBus(middleware=[MessageLogger()])
 
         bus.execute(LogTestCommand("Logging..."), LoggingCommandHandler())
         assert len(caplog.record_tuples) == 3
@@ -33,7 +43,7 @@ class TestMessageBusLogger:
         self, caplog: LogCaptureFixture
     ) -> None:
         caplog.set_level(logging.INFO)
-        bus = MessageBus()
+        bus = MessageBus(middleware=[MessageLogger()])
 
         bus.execute(PrintCommand("Logging..."), PrintCommandHandler())
         assert len(caplog.record_tuples) == 0
@@ -42,7 +52,7 @@ class TestMessageBusLogger:
         self, caplog: LogCaptureFixture
     ) -> None:
         caplog.set_level(logging.INFO)
-        bus = MessageBus()
+        bus = MessageBus(middleware=[MessageLogger()])
 
         bus.dispatch(LogTestEvent("Logging..."), [LoggingEventHandler()])
         assert len(caplog.record_tuples) == 3
@@ -52,7 +62,7 @@ class TestMessageBusLogger:
         self, caplog: LogCaptureFixture
     ) -> None:
         caplog.set_level(logging.INFO)
-        bus = MessageBus()
+        bus = MessageBus(middleware=[MessageLogger()])
 
         bus.dispatch(ExampleEvent("Logging..."), [ExampleEventHandler()])
         assert len(caplog.record_tuples) == 0
@@ -68,8 +78,60 @@ class TestMessageBusLogger:
         bus = MessageBus(middleware=[message_logger_first, message_logger_second])
 
         bus.dispatch(LogTestEvent("Logging..."), [LoggingEventHandler()])
-        print(caplog.record_tuples)
         assert caplog.record_tuples[0][0] == "first"
         assert caplog.record_tuples[1][0] == "second"
         assert caplog.record_tuples[3][0] == "second"
         assert caplog.record_tuples[4][0] == "first"
+
+    def test_nested_lock_event_is_postponed_until_after_initial_event(
+        self, caplog: LogCaptureFixture
+    ) -> None:
+        caplog.set_level(logging.INFO)
+        bus = MessageBus(middleware=[BusLocker()])
+
+        bus.register_event(NestedLockingEvent, [NestedLockingEventHandler])
+        bus.dispatch(NestedLockingEvent())
+
+        assert (
+            caplog.text.index("Pre-nested call")
+            < caplog.text.index("Post-nested call")
+            < caplog.text.index("Nested call")
+        )
+
+    def test_locked_message_bus_waits_to_execute_command_on_a_different_thread(
+        self,
+    ) -> None:
+        bus = MessageBus(middleware=[BusLocker()])
+        bus_unlock_time = multiprocessing.Value("d", 0)
+        command_1 = LockSleepCommand(0.2, bus_unlock_time)
+
+        thread_1 = threading.Thread(
+            target=bus.execute, args=(command_1, LockSleepCommandHandler())
+        )
+        thread_1.start()
+        bus_lock_time = time.time()
+
+        command_2_time = bus.execute(ReturnTimeCommand(), ReturnTimeCommandHandler())
+        thread_1.join(timeout=2)
+
+        assert bus_lock_time < bus_unlock_time.value < command_2_time  # type: ignore[attr-defined]
+
+    def test_locked_message_bus_waits_to_execute_command_on_a_different_process(
+        self,
+    ) -> None:
+        bus = MessageBus(middleware=[BusLocker()])
+        bus_unlock_time = multiprocessing.Value("d", 0)
+        command_1 = LockSleepCommand(0.3, bus_unlock_time)
+
+        process_1 = multiprocessing.Process(
+            target=bus.execute, args=(command_1, LockSleepCommandHandler())
+        )
+        process_1.start()
+        bus_lock_time = time.time()
+
+        time.sleep(0.2)
+
+        command_2_time = bus.execute(ReturnTimeCommand(), ReturnTimeCommandHandler())
+        process_1.join(timeout=2)
+
+        assert bus_lock_time < bus_unlock_time.value < command_2_time  # type: ignore[attr-defined]

@@ -13,6 +13,8 @@ if TYPE_CHECKING:
     import ctypes
     from multiprocessing.sharedctypes import SynchronizedBase
 
+    from boss_bus.message_bus import MessageBus
+
 
 class LogTestCommand(LoggingCommand):
     def __init__(self, command_data: str):
@@ -100,3 +102,17 @@ class LockSleepCommandHandler(CommandHandler[LockSleepCommand]):
         time.sleep(command.wait_secs)
 
         command.data_storage.value = time.time()  # type: ignore[attr-defined]
+
+
+class NestedLockingEvent(LockingEvent):
+    pass
+
+
+class NestedLockingEventHandler(SupportsHandle):
+    def __init__(self, bus: MessageBus):
+        self.bus = bus
+
+    def handle(self, event: LockTestEvent) -> None:  # noqa: ARG002
+        logging.info("Pre-nested call")
+        self.bus.dispatch(LogTestEvent("Nested call"), [LoggingEventHandler()])
+        logging.info("Post-nested call")
