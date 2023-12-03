@@ -15,6 +15,7 @@ from boss_bus.middleware.middleware import Middleware
 class LoggingMessage(Message, ABC):
     """A form of message that submits logs when being handled."""
 
+    logging_message = True
     message_verbs: ClassVar[list[str]] = ["handle", "handled", "handling"]
 
     def pre_handle_log(self) -> str:
@@ -54,6 +55,8 @@ class LoggingEvent(LoggingMessage, Event):
 class MessageLogger(Middleware):
     """Connects a logger to be used for automated message logging."""
 
+    message_id = "logging_message"
+
     def __init__(self, logger: logging.Logger | None = None):
         """Creates a MessageLogger that automates logging during message handling."""
         self.logger = logger if logger is not None else logging.getLogger()
@@ -64,18 +67,18 @@ class MessageLogger(Middleware):
         next_middleware: Callable[[SpecificMessage], Any],
     ) -> Any:
         """Submits logs and handles messages."""
-        if not isinstance(message, LoggingMessage):
+        if not self.message_applicable(message):
             return next_middleware(message)
+        msg = cast(LoggingMessage, message)
 
-        self.logger.info(message.pre_handle_log())
+        self.logger.info(msg.pre_handle_log())
 
         try:
-            m = cast(SpecificMessage, message)
-            result = next_middleware(m)
+            result = next_middleware(message)
         except Exception:
-            self.logger.exception(message.error_log())
+            self.logger.exception(msg.error_log())
             raise
 
-        self.logger.info(message.post_handle_log())
+        self.logger.info(msg.post_handle_log())
 
         return result

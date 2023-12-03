@@ -1,6 +1,7 @@
 import pytest
 
-from tests.loader.examples import CustomDeps, LayeredDeps, NoDeps
+from boss_bus.message_bus import MessageBus
+from tests.loader.examples import BusDeps, CustomDeps, LayeredDeps, NoDeps
 
 try:
     from lagom import Container
@@ -56,3 +57,15 @@ class TestClassInstantiator:
         loaded_class = loader.load(CustomDeps)
         assert isinstance(loaded_class, CustomDeps)
         assert loaded_class.output == "Class created"
+
+    def test_message_bus_instance_can_be_added_to_lagom(
+        self,
+    ) -> None:
+        container = Container()
+        loader = LagomLoader(container)
+        bus = MessageBus()
+        loader.add_dependency(bus)
+
+        loaded_class = loader.load(BusDeps)
+        assert isinstance(loaded_class, BusDeps)
+        assert loaded_class.bus == bus

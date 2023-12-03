@@ -7,6 +7,7 @@ from typing import Type, overload
 from lagom import Container
 
 from boss_bus.loader import ClassLoader, obj
+from boss_bus.loader.instantiator import ClassInstantiator
 
 
 class LagomLoader(ClassLoader):
@@ -18,6 +19,14 @@ class LagomLoader(ClassLoader):
     ):
         """Creates an adapter to connect Lagom."""
         self.container = container if container is not None else Container()
+        self.instantiator = ClassInstantiator()
+
+    def add_dependency(self, dependency: object) -> None:
+        """Add an already instantiated object dependency that can be retrieved.
+
+        Keeps container definitions explicit
+        """
+        self.instantiator.add_dependency(dependency)
 
     @overload
     def load(self, cls: Type[obj]) -> obj:
@@ -33,4 +42,10 @@ class LagomLoader(ClassLoader):
             return cls
 
         # noinspection PyTypeChecker
-        return self.container[cls]
+        return self._instantiate(cls)
+
+    def _instantiate(self, cls: Type[obj]) -> obj:
+        try:
+            return self.container.resolve(cls)
+        except NameError:
+            return self.instantiator.load(cls)

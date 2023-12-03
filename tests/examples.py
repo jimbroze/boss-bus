@@ -1,6 +1,9 @@
+import time
+
 from boss_bus.command_bus import Command, CommandHandler
 from boss_bus.event_bus import Event
 from boss_bus.interface import SupportsHandle
+from boss_bus.message_bus import MessageBus
 
 
 class ExampleEvent(Event):
@@ -62,3 +65,37 @@ class ReturnCommandHandler(CommandHandler[ReturnCommand]):
     def handle(self, command: ReturnCommand) -> str:
         """Handle a test command."""
         return command.command_data
+
+
+class NestedCommand(Command):
+    """A command purely for use in tests."""
+
+    def __init__(self, command_data: str):
+        """Creates a command for tests."""
+        self.command_data = command_data
+
+
+class NestedCommandHandler(CommandHandler[NestedCommand]):
+    """A command handler purely for use in tests."""
+
+    def __init__(self, message_bus: MessageBus):
+        """Creates a command for tests."""
+        self.message_bus = message_bus
+
+    def handle(self, command: NestedCommand) -> str:
+        """Handle a test command."""
+        result: str = self.message_bus.execute(
+            ReturnCommand(command.command_data), ReturnCommandHandler()
+        )
+        return result
+
+
+class ReturnTimeCommand(Command):
+    pass
+
+
+class ReturnTimeCommandHandler(CommandHandler[ReturnTimeCommand]):
+    def handle(self, command: ReturnTimeCommand) -> float:  # noqa: ARG002
+        """Handle a test command."""
+        time.sleep(0.05)
+        return time.time()
