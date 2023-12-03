@@ -70,7 +70,7 @@ class BusLocker(Middleware):
 
             self._wait_for_unlock()
 
-        if not getattr(message, self.message_id, False):
+        if not self.message_applicable(message):
             return next_middleware(message)
 
         self._lock_bus(thread_id)

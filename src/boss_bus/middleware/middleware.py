@@ -5,12 +5,14 @@ from __future__ import annotations
 from functools import partial
 from typing import Any, Callable, Protocol, runtime_checkable
 
-from boss_bus.interface import SpecificMessage  # noqa: TCH001
+from boss_bus.interface import Message, SpecificMessage  # noqa: TCH001
 
 
 @runtime_checkable
 class Middleware(Protocol):
     """Performs actions before or after message handling."""
+
+    message_id: str
 
     def handle(
         self,
@@ -18,6 +20,10 @@ class Middleware(Protocol):
         next_middleware: Callable[[SpecificMessage], Any],
     ) -> Any:
         """Perform actions before or after message handling."""
+
+    def message_applicable(self, message: Message) -> bool:
+        """Should the current middleware do anything with this message."""
+        return getattr(message, self.message_id, False)
 
 
 def create_middleware_chain(
