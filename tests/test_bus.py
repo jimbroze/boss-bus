@@ -2,9 +2,9 @@ import pytest
 from _pytest.capture import CaptureFixture
 from typeguard import TypeCheckError
 
-from boss_bus.command_bus import CommandBus
-from boss_bus.event_bus import EventBus
-from boss_bus.message_bus import MessageBus
+from boss_bus.bus import MessageBus
+from boss_bus.command import CommandBus
+from boss_bus.event import EventBus
 from tests.examples import (
     ExampleEvent,
     ExampleEventHandler,

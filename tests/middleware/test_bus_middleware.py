@@ -23,7 +23,7 @@ from tests.middleware.examples import (
     NestedLockingEventHandler,
 )
 
-from boss_bus.message_bus import MessageBus
+from boss_bus.bus import MessageBus
 from boss_bus.middleware.lock import BusLocker
 from boss_bus.middleware.log import MessageLogger
 

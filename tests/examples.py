@@ -1,9 +1,9 @@
 import time
 
-from boss_bus.command_bus import Command, CommandHandler
-from boss_bus.event_bus import Event
+from boss_bus.bus import MessageBus
+from boss_bus.command import Command, CommandHandler
+from boss_bus.event import Event
 from boss_bus.interface import SupportsHandle
-from boss_bus.message_bus import MessageBus
 
 
 class ExampleEvent(Event):

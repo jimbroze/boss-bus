@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from boss_bus.message_bus import MessageBus
+    from boss_bus.bus import MessageBus
 
 
 class NoDeps:

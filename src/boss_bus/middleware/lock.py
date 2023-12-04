@@ -8,8 +8,8 @@ import time
 from multiprocessing import Value
 from typing import TYPE_CHECKING, Any, Callable, Tuple
 
-from boss_bus.command_bus import Command
-from boss_bus.event_bus import Event
+from boss_bus.command import Command
+from boss_bus.event import Event
 from boss_bus.interface import Message, MessageT
 from boss_bus.middleware.middleware import Middleware
 

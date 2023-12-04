@@ -10,12 +10,12 @@ from typing import TYPE_CHECKING, Any, Sequence, Type, Union
 
 from typeguard import typeguard_ignore
 
-from boss_bus.command_bus import (
+from boss_bus.command import (
     CommandBus,
     CommandHandler,
     CommandT,
 )
-from boss_bus.event_bus import Event, EventBus, EventT
+from boss_bus.event import Event, EventBus, EventT
 from boss_bus.interface import SupportsHandle  # noqa: TCH001
 from boss_bus.loader.instantiator import ClassInstantiator
 from boss_bus.middleware import DEFAULT_MIDDLEWARE

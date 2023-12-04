@@ -4,7 +4,7 @@ import logging
 import time
 from typing import TYPE_CHECKING, Any
 
-from boss_bus.command_bus import CommandHandler
+from boss_bus.command import CommandHandler
 from boss_bus.interface import SupportsHandle
 from boss_bus.middleware.lock import BusLocker, LockingCommand, LockingEvent
 from boss_bus.middleware.log import LoggingCommand, LoggingEvent, LoggingMessage
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     import ctypes
     from multiprocessing.sharedctypes import SynchronizedBase
 
-    from boss_bus.message_bus import MessageBus
+    from boss_bus.bus import MessageBus
 
 
 class LogTestCommand(LoggingCommand):

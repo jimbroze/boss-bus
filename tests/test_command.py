@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Union
 import pytest
 from typeguard import TypeCheckError
 
-from boss_bus.command_bus import (
+from boss_bus.command import (
     Command,
     CommandBus,
     CommandHandler,

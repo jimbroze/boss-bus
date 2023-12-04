@@ -1,12 +1,12 @@
 import pytest
 
-from boss_bus.message_bus import MessageBus
+from boss_bus.bus import MessageBus
 from tests.loader.examples import BusDeps, CustomDeps, LayeredDeps, NoDeps
 
 try:
     from lagom import Container
 
-    from boss_bus.loader.lagom_loader import LagomLoader
+    from boss_bus.loader.lagom import LagomLoader
 except ImportError:  # pragma: no cover
     pytest.skip("lagom dependency not installed", allow_module_level=True)
 

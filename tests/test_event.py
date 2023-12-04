@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 from typeguard import TypeCheckError
 
-from boss_bus.event_bus import (
+from boss_bus.event import (
     Event,
     EventBus,
 )

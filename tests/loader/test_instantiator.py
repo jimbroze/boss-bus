@@ -1,5 +1,5 @@
+from boss_bus.bus import MessageBus
 from boss_bus.loader.instantiator import ClassInstantiator
-from boss_bus.message_bus import MessageBus
 from tests.loader.examples import BusDeps, LayeredDeps, NoDeps, SimpleDeps
 
 
