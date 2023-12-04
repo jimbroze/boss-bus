@@ -15,8 +15,7 @@ from typing import Any, Generic, Type, TypeVar
 
 from typeguard import typechecked
 
-from boss_bus.handler import MissingHandlerError
-from boss_bus.interface import Message, SupportsHandle
+from boss_bus.interface import Message, MissingHandlerError, SupportsHandle
 
 from ._utils.typing import get_annotations, type_matches
 

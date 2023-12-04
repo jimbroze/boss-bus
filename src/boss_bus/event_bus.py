@@ -15,8 +15,7 @@ from typing import Any, Sequence, Type, TypeVar
 
 from typeguard import TypeCheckError, typechecked
 
-from boss_bus.handler import MissingHandlerError
-from boss_bus.interface import Message, SupportsHandle
+from boss_bus.interface import Message, MissingHandlerError, SupportsHandle
 
 
 class Event(Message):

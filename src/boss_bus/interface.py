@@ -1,9 +1,4 @@
-"""Base Interfaces for message bus classes.
-
-Classes:
-
-    IMessageHandler
-"""
+"""Base Interfaces for message bus classes."""
 
 from __future__ import annotations
 
@@ -32,3 +27,7 @@ class SupportsHandle(Protocol):
     def handle(self, message: Any) -> Any:
         """Perform actions using a message."""
         ...
+
+
+class MissingHandlerError(Exception):
+    """The requested Handler could not be found."""

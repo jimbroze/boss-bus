@@ -9,8 +9,7 @@ from boss_bus.event_bus import (
     Event,
     EventBus,
 )
-from boss_bus.handler import MissingHandlerError
-from boss_bus.interface import SupportsHandle
+from boss_bus.interface import MissingHandlerError, SupportsHandle
 
 from .examples import ExampleEvent
 

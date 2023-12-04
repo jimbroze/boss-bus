@@ -12,7 +12,7 @@ from boss_bus.command_bus import (
     InvalidHandlerError,
     TooManyHandlersError,
 )
-from boss_bus.handler import MissingHandlerError
+from boss_bus.interface import MissingHandlerError
 from tests.examples import (
     ReturnCommand,
     ReturnCommandHandler,
