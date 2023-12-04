@@ -24,7 +24,6 @@ Changelog = "https://github.com/jimbroze/boss-bus/releases"
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
-click = ">=8.0.1"
 typeguard = ">=2.13.3"
 
 # Optional
@@ -48,7 +47,6 @@ safety = ">=1.10.3"
 furo = ">=2021.11.12"
 sphinx = ">=4.3.2"
 sphinx-autobuild = ">=2021.3.14"
-sphinx-click = ">=3.0.2"
 myst-parser = {version = ">=0.16.1"}
 
 [tool.poetry.group.test.dependencies]
