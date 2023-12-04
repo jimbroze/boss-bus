@@ -8,7 +8,7 @@ from typing import Any, Callable, ClassVar, cast
 
 from boss_bus.command_bus import Command
 from boss_bus.event_bus import Event
-from boss_bus.interface import Message, SpecificMessage
+from boss_bus.interface import Message, MessageT
 from boss_bus.middleware.middleware import Middleware
 
 
@@ -63,8 +63,8 @@ class MessageLogger(Middleware):
 
     def handle(
         self,
-        message: SpecificMessage,
-        next_middleware: Callable[[SpecificMessage], Any],
+        message: MessageT,
+        next_middleware: Callable[[MessageT], Any],
     ) -> Any:
         """Submits logs and handles messages."""
         if not self.message_applicable(message):

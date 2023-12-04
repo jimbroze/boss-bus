@@ -22,7 +22,7 @@ class Message(ABC):
         return type(self).__name__
 
 
-SpecificMessage = TypeVar("SpecificMessage", bound=Message)
+MessageT = TypeVar("MessageT", bound=Message)
 
 
 @runtime_checkable

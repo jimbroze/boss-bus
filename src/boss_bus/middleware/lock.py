@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Callable, Tuple
 
 from boss_bus.command_bus import Command
 from boss_bus.event_bus import Event
-from boss_bus.interface import Message, SpecificMessage
+from boss_bus.interface import Message, MessageT
 from boss_bus.middleware.middleware import Middleware
 
 if TYPE_CHECKING:
@@ -38,7 +38,7 @@ def get_thread_id() -> int:
     return int(str(os.getpid()) + str(threading.get_ident()))
 
 
-MessageHandlerTuple = Tuple[SpecificMessage, Callable[[SpecificMessage], Any]]
+MessageHandlerTuple = Tuple[MessageT, Callable[[MessageT], Any]]
 
 
 class BusLocker(Middleware):
@@ -60,8 +60,8 @@ class BusLocker(Middleware):
 
     def handle(
         self,
-        message: SpecificMessage,
-        next_middleware: Callable[[SpecificMessage], Any],
+        message: MessageT,
+        next_middleware: Callable[[MessageT], Any],
     ) -> Any:
         """Locks a message bus while a message is being handled."""
         thread_id = get_thread_id()
@@ -88,8 +88,8 @@ class BusLocker(Middleware):
 
     def _postpone_handling(
         self,
-        message: SpecificMessage,
-        next_middleware: Callable[[SpecificMessage], Any],
+        message: MessageT,
+        next_middleware: Callable[[MessageT], Any],
     ) -> None:
         self.queue.append((message, next_middleware))
 
