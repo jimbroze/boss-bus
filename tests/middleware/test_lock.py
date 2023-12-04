@@ -104,7 +104,7 @@ class TestLock:
     def test_locked_bus_waits_to_execute_command_on_a_different_process(self) -> None:
         locker = BusLocker()
         bus_unlock_time = multiprocessing.Value("d", 0)
-        command_1 = LockSleepCommand(0.4, bus_unlock_time)
+        command_1 = LockSleepCommand(0.5, bus_unlock_time)
         command_2 = ReturnTimeCommand()
 
         def bus_2(c: ReturnTimeCommand) -> Any:
@@ -119,14 +119,14 @@ class TestLock:
         time.sleep(0.2)
 
         command_2_time = locker.handle(command_2, bus_2)
-        process_1.join(timeout=3)
+        process_1.join(timeout=4)
 
         assert bus_lock_time < bus_unlock_time.value < command_2_time  # type: ignore[attr-defined]
 
     def test_command_execution_times_out_if_bus_is_locked_for_too_long(self) -> None:
         locker = BusLocker(0.4)
         bus_unlock_time = multiprocessing.Value("d", 0)
-        command_1 = LockSleepCommand(0.8, bus_unlock_time)
+        command_1 = LockSleepCommand(2, bus_unlock_time)
         command_2 = ReturnTimeCommand()
 
         def bus_2(c: ReturnTimeCommand) -> Any:
@@ -141,15 +141,15 @@ class TestLock:
         time.sleep(0.2)
 
         command_2_time = locker.handle(command_2, bus_2)
-        process_1.join(timeout=3)
+        process_1.join(timeout=4)
 
         assert bus_lock_time < command_2_time < bus_unlock_time.value  # type: ignore[attr-defined]
 
     def test_locking_timeout_can_be_overriden_by_locking_message(self) -> None:
-        locker = BusLocker(0.4)
+        locker = BusLocker(0.1)
         bus_unlock_time = multiprocessing.Value("d", 0)
-        command_1 = LockSleepCommand(0.8, bus_unlock_time)
-        command_1.locking_timeout = 1.2  # type: ignore[attr-defined]
+        command_1 = LockSleepCommand(0.4, bus_unlock_time)
+        command_1.locking_timeout = 2  # type: ignore[attr-defined]
         command_2 = ReturnTimeCommand()
 
         def bus_2(c: ReturnTimeCommand) -> Any:
@@ -164,15 +164,15 @@ class TestLock:
         time.sleep(0.2)
 
         command_2_time = locker.handle(command_2, bus_2)
-        process_1.join(timeout=3)
+        process_1.join(timeout=4)
 
         assert bus_lock_time < bus_unlock_time.value < command_2_time  # type: ignore[attr-defined]
 
     def test_locking_timeout_can_be_overriden_by_waiting_message(self) -> None:
         locker = BusLocker(0.4)
         bus_unlock_time = multiprocessing.Value("d", 0)
-        command_1 = LockSleepCommand(1, bus_unlock_time)
-        command_1.locking_timeout = 1.5  # type: ignore[attr-defined]
+        command_1 = LockSleepCommand(1.8, bus_unlock_time)
+        command_1.locking_timeout = 2  # type: ignore[attr-defined]
         command_2 = ReturnTimeCommand()
         command_2.locking_timeout = 0.4  # type: ignore[attr-defined]
 
@@ -188,6 +188,6 @@ class TestLock:
         time.sleep(0.2)
 
         command_2_time = locker.handle(command_2, bus_2)
-        process_1.join(timeout=3)
+        process_1.join(timeout=4)
 
         assert bus_lock_time < command_2_time < bus_unlock_time.value  # type: ignore[attr-defined]

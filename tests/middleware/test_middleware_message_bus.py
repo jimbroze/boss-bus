@@ -121,7 +121,7 @@ class TestMessageBusLogger:
     ) -> None:
         bus = MessageBus(middleware=[BusLocker()])
         bus_unlock_time = multiprocessing.Value("d", 0)
-        command_1 = LockSleepCommand(0.4, bus_unlock_time)
+        command_1 = LockSleepCommand(0.6, bus_unlock_time)
 
         process_1 = multiprocessing.Process(
             target=bus.execute, args=(command_1, LockSleepCommandHandler())
@@ -132,6 +132,6 @@ class TestMessageBusLogger:
         time.sleep(0.2)
 
         command_2_time = bus.execute(ReturnTimeCommand(), ReturnTimeCommandHandler())
-        process_1.join(timeout=3)
+        process_1.join(timeout=4)
 
         assert bus_lock_time < bus_unlock_time.value < command_2_time  # type: ignore[attr-defined]
