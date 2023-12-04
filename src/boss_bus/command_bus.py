@@ -26,14 +26,14 @@ class Command(Message):
     message_type: str = "command"
 
 
-SpecificCommand = TypeVar("SpecificCommand", bound=Command)
+CommandT = TypeVar("CommandT", bound=Command)
 
 
-class CommandHandler(ABC, SupportsHandle, Generic[SpecificCommand]):
+class CommandHandler(ABC, SupportsHandle, Generic[CommandT]):
     """A form of message which only has one handler."""
 
     @abstractmethod
-    def handle(self, command: SpecificCommand) -> Any:
+    def handle(self, command: CommandT) -> Any:
         """Perform actions using a specific command."""
 
 
@@ -75,8 +75,8 @@ class CommandBus:
     @typechecked
     def register_handler(
         self,
-        command_type: Type[SpecificCommand],
-        handler: CommandHandler[SpecificCommand],
+        command_type: Type[CommandT],
+        handler: CommandHandler[CommandT],
     ) -> None:
         """Register a single handler that will execute a type of Command.
 
@@ -93,7 +93,7 @@ class CommandBus:
         self._handlers[command_type] = handler
 
     @typechecked
-    def remove_handler(self, command_type: Type[SpecificCommand]) -> None:
+    def remove_handler(self, command_type: Type[CommandT]) -> None:
         """Remove a previously registered handler.
 
         Example:
@@ -112,7 +112,7 @@ class CommandBus:
 
         del self._handlers[command_type]
 
-    def is_registered(self, command_type: Type[SpecificCommand]) -> bool:
+    def is_registered(self, command_type: Type[CommandT]) -> bool:
         """Checks if a command is registered with the bus.
 
         Example:
@@ -131,8 +131,8 @@ class CommandBus:
     @typechecked
     def execute(
         self,
-        command: SpecificCommand,
-        handler: CommandHandler[SpecificCommand] | None = None,
+        command: CommandT,
+        handler: CommandHandler[CommandT] | None = None,
     ) -> Any:
         """Calls the handle method on a command's handler.
 

@@ -24,7 +24,7 @@ class Event(Message):
     message_type: str = "event"
 
 
-SpecificEvent = TypeVar("SpecificEvent", bound=Event)
+EventT = TypeVar("EventT", bound=Event)
 
 
 class MissingEventError(Exception):

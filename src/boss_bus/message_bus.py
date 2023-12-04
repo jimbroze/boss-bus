@@ -13,9 +13,9 @@ from typeguard import typeguard_ignore
 from boss_bus.command_bus import (
     CommandBus,
     CommandHandler,
-    SpecificCommand,
+    CommandT,
 )
-from boss_bus.event_bus import Event, EventBus, SpecificEvent
+from boss_bus.event_bus import Event, EventBus, EventT
 from boss_bus.interface import SupportsHandle  # noqa: TCH001
 from boss_bus.loader.instantiator import ClassInstantiator
 from boss_bus.middleware import DEFAULT_MIDDLEWARE
@@ -54,8 +54,8 @@ class MessageBus:
 
     def execute(
         self,
-        command: SpecificCommand,
-        handler: CommandHandler[SpecificCommand] | None = None,
+        command: CommandT,
+        handler: CommandHandler[CommandT] | None = None,
     ) -> Any:
         """Forwards a command to a CommandBus for execution.
 
@@ -69,7 +69,7 @@ class MessageBus:
             Testing...
         """
 
-        def bus_closure(c: SpecificCommand) -> Any:
+        def bus_closure(c: CommandT) -> Any:
             return self.command_bus.execute(c, handler)
 
         # noinspection PyTypeChecker
@@ -77,7 +77,7 @@ class MessageBus:
         return bus(command)
 
     def dispatch(
-        self, event: SpecificEvent, handlers: Sequence[SupportsHandle] | None = None
+        self, event: EventT, handlers: Sequence[SupportsHandle] | None = None
     ) -> None:
         """Forwards an event to an EventBus for dispatching.
 
@@ -91,7 +91,7 @@ class MessageBus:
             Testing...
         """
 
-        def bus_closure(e: SpecificEvent) -> None:
+        def bus_closure(e: EventT) -> None:
             return self.event_bus.dispatch(e, handlers)
 
         # noinspection PyTypeChecker
@@ -119,10 +119,8 @@ class MessageBus:
     @typeguard_ignore
     def register_command(
         self,
-        message_type: Type[SpecificCommand],
-        handler: Union[
-            Type[CommandHandler[SpecificCommand]], CommandHandler[SpecificCommand]
-        ],
+        message_type: Type[CommandT],
+        handler: Union[Type[CommandHandler[CommandT]], CommandHandler[CommandT]],
     ) -> None:
         """Register a handler that can dispatch a type of Command.
 
@@ -173,7 +171,7 @@ class MessageBus:
         loaded_handlers = [self.loader.load(handler) for handler in handlers]
         return self.event_bus.remove_handlers(message_type, loaded_handlers)
 
-    def deregister_command(self, message_type: Type[SpecificCommand]) -> None:
+    def deregister_command(self, message_type: Type[CommandT]) -> None:
         """Remove a handler that is registered to execute a Command.
 
         Example:
@@ -200,7 +198,7 @@ class MessageBus:
         """
         return self.event_bus.has_handlers(event_type)
 
-    def is_registered(self, command_type: Type[SpecificCommand]) -> bool:
+    def is_registered(self, command_type: Type[CommandT]) -> bool:
         """Returns whether a command is registered with the command bus.
 
         Example:
