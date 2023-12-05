@@ -10,10 +10,11 @@ Classes:
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from collections import defaultdict
-from typing import Any, Sequence, Type, TypeVar
+from typing import Any, Generic, Sequence, Type, TypeVar
 
-from typeguard import TypeCheckError, typechecked
+from typeguard import typechecked
 
 from boss_bus.interface import Message, MissingHandlerError, SupportsHandle
 
@@ -27,15 +28,16 @@ class Event(Message):
 EventT = TypeVar("EventT", bound=Event)
 
 
+class EventHandler(ABC, SupportsHandle, Generic[EventT]):
+    """A form of message which only has one handler."""
+
+    @abstractmethod
+    def handle(self, command: EventT) -> Any:
+        """Perform actions using a specific command."""
+
+
 class MissingEventError(Exception):
     """The requested Error could not be found."""
-
-
-def _validate_handler(handler: Any) -> None:
-    if isinstance(handler, type):
-        raise TypeCheckError(
-            f"'handlers' must be an instance of {SupportsHandle.__name__}"
-        )
 
 
 class EventBus:
@@ -54,13 +56,13 @@ class EventBus:
 
     def __init__(self) -> None:
         """Creates an Event Bus."""
-        self._handlers: dict[type[Event], list[SupportsHandle]] = defaultdict(list)
+        self._handlers: dict[type[Event], list[EventHandler[Any]]] = defaultdict(list)
 
     @typechecked
     def add_handlers(
         self,
-        event_type: Type[Event],
-        handlers: Sequence[SupportsHandle],
+        event_type: Type[EventT],
+        handlers: Sequence[EventHandler[EventT]],
     ) -> None:
         """Register handlers that will dispatch a type of Event.
 
@@ -75,14 +77,13 @@ class EventBus:
             2
         """
         for handler in handlers:  # pragma: no branch
-            _validate_handler(handler)
             self._handlers[event_type].append(handler)
 
     @typechecked
     def remove_handlers(
         self,
-        event_type: Type[Event],
-        handlers: Sequence[SupportsHandle] | None = None,
+        event_type: Type[EventT],
+        handlers: Sequence[EventHandler[EventT]] | None = None,
     ) -> None:
         """Remove previously registered handlers.
 
@@ -115,8 +116,6 @@ class EventBus:
             return
 
         for handler in handlers:  # pragma: no branch
-            _validate_handler(handler)
-
             matching_handlers = [
                 registered_handler
                 for registered_handler in self._handlers[event_type]
@@ -146,7 +145,7 @@ class EventBus:
 
     @typechecked
     def dispatch(
-        self, event: Event, handlers: Sequence[SupportsHandle] | None = None
+        self, event: EventT, handlers: Sequence[EventHandler[EventT]] | None = None
     ) -> None:
         """Dispatch events to their handlers.
 

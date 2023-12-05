@@ -45,6 +45,7 @@ class InvalidHandlerError(Exception):
     """The handler does not match the command."""
 
 
+# TODO add this to Event bus?
 def _validate_handler(
     command_type: Type[Command], handler: CommandHandler[Any]
 ) -> None:

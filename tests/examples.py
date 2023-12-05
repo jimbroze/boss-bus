@@ -2,8 +2,7 @@ import time
 
 from boss_bus.bus import MessageBus
 from boss_bus.command import Command, CommandHandler
-from boss_bus.event import Event
-from boss_bus.interface import SupportsHandle
+from boss_bus.event import Event, EventHandler
 
 
 class ExampleEvent(Event):
@@ -17,7 +16,7 @@ class ExampleEvent(Event):
         print(self.event_data)
 
 
-class ExampleEventHandler(SupportsHandle):
+class ExampleEventHandler(EventHandler[ExampleEvent]):
     """An event handler purely for use in tests."""
 
     def handle(self, event: ExampleEvent) -> None:
@@ -25,7 +24,7 @@ class ExampleEventHandler(SupportsHandle):
         event.print_event_data()
 
 
-class OtherEventHandler(SupportsHandle):
+class OtherEventHandler(EventHandler[ExampleEvent]):
     """An event handler purely for use in tests."""
 
     def handle(self, event: ExampleEvent) -> None:

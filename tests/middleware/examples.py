@@ -5,7 +5,7 @@ import time
 from typing import TYPE_CHECKING, Any
 
 from boss_bus.command import CommandHandler
-from boss_bus.interface import SupportsHandle
+from boss_bus.event import EventHandler
 from boss_bus.middleware.lock import BusLocker, LockingCommand, LockingEvent
 from boss_bus.middleware.log import LoggingCommand, LoggingEvent, LoggingMessage
 
@@ -48,7 +48,7 @@ class LogErrorEvent(LogTestEvent):
         raise Exception
 
 
-class LoggingEventHandler(SupportsHandle):
+class LoggingEventHandler(EventHandler[LogTestEvent]):
     def handle(self, event: LogTestEvent) -> None:
         event.log_event_data()
 
@@ -74,7 +74,7 @@ class LockTestEvent(LockingEvent):
     pass
 
 
-class LockingEventHandler(SupportsHandle):
+class LockingEventHandler(EventHandler[LockTestEvent]):
     def __init__(self, locker: BusLocker):
         self.locker = locker
 
@@ -108,7 +108,7 @@ class NestedLockingEvent(LockingEvent):
     pass
 
 
-class NestedLockingEventHandler(SupportsHandle):
+class NestedLockingEventHandler(EventHandler[LockTestEvent]):
     def __init__(self, bus: MessageBus):
         self.bus = bus
 

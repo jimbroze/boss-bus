@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from typeguard import TypeCheckError
@@ -8,8 +8,9 @@ from typeguard import TypeCheckError
 from boss_bus.event import (
     Event,
     EventBus,
+    EventHandler,
 )
-from boss_bus.interface import MissingHandlerError, SupportsHandle
+from boss_bus.interface import MissingHandlerError
 
 from .examples import ExampleEvent
 
@@ -26,17 +27,17 @@ class FloodEvent:
     pass
 
 
-class AnyEventHandler(SupportsHandle):
+class AnyEventHandler(EventHandler[Any]):
     def handle(self, event: Event) -> None:  # noqa: ARG002
         print("Hi")
 
 
-class ExplosionEventHandler:
+class ExplosionEventHandler(EventHandler[ExplosionEvent]):
     def handle(self, event: ExplosionEvent) -> None:
         event.print_event_data()
 
 
-class SecondExplosionEventHandler(SupportsHandle):
+class SecondExplosionEventHandler(EventHandler[ExplosionEvent]):
     def handle(self, event: ExplosionEvent) -> None:
         event.print_event_data()
         print("again")
@@ -87,7 +88,7 @@ class TestEventBus:
         bus = EventBus()
 
         with pytest.raises(TypeCheckError):
-            bus.dispatch(event, [handler])  # type: ignore[arg-type]
+            bus.dispatch(event, [handler])  # type: ignore[misc]
 
     def test_dispatch_will_not_throw_exception_if_dispatching_an_event_with_no_handlers(
         self,
@@ -142,7 +143,7 @@ class TestEventBus:
         bus = EventBus()
 
         with pytest.raises(TypeCheckError):
-            bus.add_handlers(FloodEvent, [handler])  # type: ignore[arg-type]
+            bus.add_handlers(FloodEvent, [handler])  # type: ignore[misc]
 
     def test_add_handers_will_not_register_an_uninstantiated_handler(self) -> None:
         bus = EventBus()
@@ -179,7 +180,7 @@ class TestEventBus:
         bus.add_handlers(ExplosionEvent, [handler])
 
         with pytest.raises(TypeCheckError):
-            bus.remove_handlers(FloodEvent, [handler])  # type: ignore[arg-type]
+            bus.remove_handlers(FloodEvent, [handler])  # type: ignore[misc]
 
     def test_remove_handlers_throws_exception_if_handler_is_not_registered(
         self,

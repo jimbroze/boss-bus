@@ -15,8 +15,12 @@ from boss_bus.command import (
     CommandHandler,
     CommandT,
 )
-from boss_bus.event import Event, EventBus, EventT
-from boss_bus.interface import SupportsHandle  # noqa: TCH001
+from boss_bus.event import (
+    Event,
+    EventBus,
+    EventHandler,
+    EventT,
+)
 from boss_bus.loader.instantiator import ClassInstantiator
 from boss_bus.middleware import DEFAULT_MIDDLEWARE
 from boss_bus.middleware.middleware import Middleware, create_middleware_chain
@@ -77,7 +81,7 @@ class MessageBus:
         return bus(command)
 
     def dispatch(
-        self, event: EventT, handlers: Sequence[SupportsHandle] | None = None
+        self, event: EventT, handlers: Sequence[EventHandler[EventT]] | None = None
     ) -> None:
         """Forwards an event to an EventBus for dispatching.
 
@@ -98,10 +102,11 @@ class MessageBus:
         bus = create_middleware_chain(bus_closure, self.middleware)
         bus(event)
 
+    @typeguard_ignore
     def register_event(
         self,
-        message_type: Type[Event],
-        handlers: Sequence[Type[SupportsHandle] | SupportsHandle],
+        message_type: Type[EventT],
+        handlers: Sequence[Type[EventHandler[EventT]] | EventHandler[EventT]],
     ) -> None:
         """Register handlers that can dispatch a type of Event.
 
@@ -135,10 +140,12 @@ class MessageBus:
         loaded_handler = self.loader.load(handler)
         self.command_bus.register_handler(message_type, loaded_handler)
 
+    @typeguard_ignore
     def deregister_event(
         self,
-        message_type: Type[Event],
-        handlers: Sequence[Type[SupportsHandle] | SupportsHandle] | None = None,
+        message_type: Type[EventT],
+        handlers: Sequence[Type[EventHandler[EventT]] | EventHandler[EventT]]
+        | None = None,
     ) -> None:
         """Remove handlers that are registered to dispatch an Event.
 
