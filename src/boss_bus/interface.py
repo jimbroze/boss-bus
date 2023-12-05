@@ -25,9 +25,13 @@ class SupportsHandle(Protocol):
     """An interface that requires a handler method."""
 
     def handle(self, message: Any) -> Any:
-        """Perform actions using a message."""
+        """Performs actions using a message."""
         ...
 
 
 class MissingHandlerError(Exception):
     """The requested Handler could not be found."""
+
+
+class InvalidHandlerError(Exception):
+    """The handler does not match the message."""

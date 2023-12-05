@@ -14,9 +14,13 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from typing import Any, Generic, Sequence, Type, TypeVar
 
-from typeguard import typechecked
-
-from boss_bus.interface import Message, MissingHandlerError, SupportsHandle
+from boss_bus._utils.typing import get_annotations, type_matches
+from boss_bus.interface import (
+    InvalidHandlerError,
+    Message,
+    MissingHandlerError,
+    SupportsHandle,
+)
 
 
 class Event(Message):
@@ -40,6 +44,18 @@ class MissingEventError(Exception):
     """The requested Error could not be found."""
 
 
+def _validate_handler(event_type: Type[Event], handler: EventHandler[Any]) -> None:
+    if isinstance(handler, type):
+        raise InvalidHandlerError(
+            f"The handler '{getattr(handler, '__name__', handler)}'"
+            f"must be instantiated to be registered with the event bus"
+        )
+    if not type_matches(get_annotations(handler.handle)["event"], event_type):
+        raise InvalidHandlerError(
+            f"The handler '{handler}' does not match the event '{getattr(event_type, '__name__', event_type)}'"
+        )
+
+
 class EventBus:
     """Dispatches events to their associated handlers.
 
@@ -58,7 +74,6 @@ class EventBus:
         """Creates an Event Bus."""
         self._handlers: dict[type[Event], list[EventHandler[Any]]] = defaultdict(list)
 
-    @typechecked
     def add_handlers(
         self,
         event_type: Type[EventT],
@@ -77,9 +92,9 @@ class EventBus:
             2
         """
         for handler in handlers:  # pragma: no branch
+            _validate_handler(event_type, handler)
             self._handlers[event_type].append(handler)
 
-    @typechecked
     def remove_handlers(
         self,
         event_type: Type[EventT],
@@ -116,10 +131,11 @@ class EventBus:
             return
 
         for handler in handlers:  # pragma: no branch
+            _validate_handler(event_type, handler)
             matching_handlers = [
                 registered_handler
                 for registered_handler in self._handlers[event_type]
-                if type(handler) == type(registered_handler)
+                if type(handler) is type(registered_handler)
             ]
 
             if not matching_handlers:
@@ -143,7 +159,6 @@ class EventBus:
         """
         return len(self._handlers[event_type])
 
-    @typechecked
     def dispatch(
         self, event: EventT, handlers: Sequence[EventHandler[EventT]] | None = None
     ) -> None:

@@ -1,6 +1,6 @@
 import pytest
 from _pytest.capture import CaptureFixture
-from typeguard import TypeCheckError
+from typeguard import suppress_type_checks
 
 from boss_bus.bus import MessageBus
 from boss_bus.command import CommandBus
@@ -43,14 +43,16 @@ class TestMessageBus:
 
         assert result == "Test the bus"
 
+    @suppress_type_checks
     def test_an_event_cannot_be_executed(self) -> None:
         event = ExampleEvent("Test the bus")
         handler = ExampleEventHandler()
         bus = MessageBus()
 
-        with pytest.raises(TypeCheckError):
+        with pytest.raises(KeyError):
             bus.execute(event, handler)  # type: ignore[type-var, arg-type]
 
+    @suppress_type_checks
     def test_an_event_can_be_dispatched(self) -> None:
         event = ExampleEvent("Test the bus")
         handler = ExampleEventHandler()
@@ -58,12 +60,13 @@ class TestMessageBus:
 
         bus.dispatch(event, [handler])
 
+    @suppress_type_checks
     def test_a_command_cannot_be_dispatched(self) -> None:
         command = PrintCommand("Test the bus")
         handler = PrintCommandHandler()
         bus = MessageBus()
 
-        with pytest.raises(TypeCheckError):
+        with pytest.raises(TypeError):
             bus.dispatch(command, handler)  # type: ignore[arg-type, type-var]
 
     def test_command_registers_with_the_command_bus(self) -> None:

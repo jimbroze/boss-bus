@@ -3,16 +3,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Union
 
 import pytest
-from typeguard import TypeCheckError
+from typeguard import suppress_type_checks
 
 from boss_bus.command import (
     Command,
     CommandBus,
     CommandHandler,
-    InvalidHandlerError,
     TooManyHandlersError,
 )
-from boss_bus.interface import MissingHandlerError
+from boss_bus.interface import InvalidHandlerError, MissingHandlerError
 from tests.examples import (
     ReturnCommand,
     ReturnCommandHandler,
@@ -77,13 +76,14 @@ class TestCommandBus:
         with pytest.raises(InvalidHandlerError):
             bus.execute(command, handler)  # type: ignore[misc]
 
+    @suppress_type_checks
     def test_execute_does_not_accept_multiple_handlers(self) -> None:
         command = ExplosionCommand()
         handler1 = ExplosionCommandHandler()
         handler2 = SecondExplosionCommandHandler()
         bus = CommandBus()
 
-        with pytest.raises(TypeCheckError):
+        with pytest.raises(AttributeError):
             bus.execute(command, [handler1, handler2])  # type: ignore[arg-type]
 
     def test_execute_cannot_execute_a_command_with_no_handlers(
@@ -149,12 +149,13 @@ class TestCommandBus:
         with pytest.raises(TypeError):
             bus.register_handler(ExplosionCommand)  # type: ignore[call-arg]
 
+    @suppress_type_checks
     def test_register_handler_requires_command_type_to_be_a_type(self) -> None:
         command = ExplosionCommand()
         handler1 = ExplosionCommandHandler()
         bus = CommandBus()
 
-        with pytest.raises(TypeCheckError):
+        with pytest.raises(InvalidHandlerError):
             bus.register_handler(command, handler1)  # type: ignore[arg-type]
 
     def test_register_handler_will_not_register_an_invalid_handler_for_the_command(
@@ -166,20 +167,22 @@ class TestCommandBus:
         with pytest.raises(InvalidHandlerError):
             bus.register_handler(FloodCommand, handler)  # type: ignore[misc]
 
+    @suppress_type_checks
     def test_register_handler_will_not_accept_multiple_handlers(self) -> None:
         command = ExplosionCommand()
         handler1 = ExplosionCommandHandler()
         handler2 = SecondExplosionCommandHandler()
         bus = CommandBus()
 
-        with pytest.raises(TypeCheckError):
+        with pytest.raises(AttributeError):
             bus.register_handler(command, [handler1, handler2])  # type: ignore[arg-type]
 
+    @suppress_type_checks
     def test_register_handler_will_not_register_an_uninstantiated_handler(self) -> None:
         bus = CommandBus()
 
-        with pytest.raises(TypeCheckError):
-            bus.register_handler(ExplosionCommand, [ExplosionCommandHandler])  # type: ignore[arg-type]
+        with pytest.raises(InvalidHandlerError):
+            bus.register_handler(ExplosionCommand, ExplosionCommandHandler)  # type: ignore[arg-type]
 
     def test_remove_handler_removes_handler_for_a_given_command_and_deletes_key(
         self,

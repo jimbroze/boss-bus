@@ -3,14 +3,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import pytest
-from typeguard import TypeCheckError
+from typeguard import suppress_type_checks
 
 from boss_bus.event import (
     Event,
     EventBus,
     EventHandler,
 )
-from boss_bus.interface import MissingHandlerError
+from boss_bus.interface import InvalidHandlerError, MissingHandlerError
 
 from .examples import ExampleEvent
 
@@ -82,12 +82,13 @@ class TestEventBus:
         captured = capsys.readouterr()
         assert captured.out == "It went boom\nIt went boom\nagain\n"
 
+    @suppress_type_checks
     def test_dispatch_will_not_accept_an_invalid_event(self) -> None:
         event = FloodEvent()
         handler = ExplosionEventHandler()
         bus = EventBus()
 
-        with pytest.raises(TypeCheckError):
+        with pytest.raises(AttributeError):
             bus.dispatch(event, [handler])  # type: ignore[misc]
 
     def test_dispatch_will_not_throw_exception_if_dispatching_an_event_with_no_handlers(
@@ -130,25 +131,28 @@ class TestEventBus:
         captured = capsys.readouterr()
         assert captured.out == "It went boom\nIt went boom\nagain\nHi\n"
 
+    @suppress_type_checks
     def test_add_handlers_requires_event_type_to_be_a_type(self) -> None:
         event = ExplosionEvent()
         handler1 = ExplosionEventHandler()
         bus = EventBus()
 
-        with pytest.raises(TypeCheckError):
+        with pytest.raises(InvalidHandlerError):
             bus.add_handlers(event, [handler1])  # type: ignore[arg-type]
 
+    @suppress_type_checks
     def test_add_handlers_will_not_register_an_invalid_event_and_handler(self) -> None:
         handler = ExplosionEventHandler()
         bus = EventBus()
 
-        with pytest.raises(TypeCheckError):
+        with pytest.raises(InvalidHandlerError):
             bus.add_handlers(FloodEvent, [handler])  # type: ignore[misc]
 
+    @suppress_type_checks
     def test_add_handers_will_not_register_an_uninstantiated_handler(self) -> None:
         bus = EventBus()
 
-        with pytest.raises(TypeCheckError):
+        with pytest.raises(InvalidHandlerError):
             bus.add_handlers(ExplosionEvent, [ExplosionEventHandler])  # type: ignore[list-item]
 
     def test_remove_handlers_can_remove_all_handlers(self) -> None:
@@ -173,15 +177,17 @@ class TestEventBus:
         assert ExplosionEvent in bus._handlers  # noqa: SLF001
         assert len(bus._handlers[ExplosionEvent]) == 1  # noqa: SLF001
 
+    @suppress_type_checks
     def test_remove_handlers_will_not_accept_an_invalid_event_and_handler(self) -> None:
         handler = ExplosionEventHandler()
         bus = EventBus()
 
         bus.add_handlers(ExplosionEvent, [handler])
 
-        with pytest.raises(TypeCheckError):
+        with pytest.raises(InvalidHandlerError):
             bus.remove_handlers(FloodEvent, [handler])  # type: ignore[misc]
 
+    @suppress_type_checks
     def test_remove_handlers_throws_exception_if_handler_is_not_registered(
         self,
     ) -> None:

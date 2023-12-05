@@ -89,7 +89,7 @@ class TestMessageBusLogger:
         caplog.set_level(logging.INFO)
         bus = MessageBus(middleware=[BusLocker()])
 
-        bus.register_event(NestedLockingEvent, [NestedLockingEventHandler])  # type: ignore[misc]
+        bus.register_event(NestedLockingEvent, [NestedLockingEventHandler])
         bus.dispatch(NestedLockingEvent())
 
         assert (

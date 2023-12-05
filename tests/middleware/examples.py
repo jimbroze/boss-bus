@@ -108,11 +108,11 @@ class NestedLockingEvent(LockingEvent):
     pass
 
 
-class NestedLockingEventHandler(EventHandler[LockTestEvent]):
+class NestedLockingEventHandler(EventHandler[NestedLockingEvent]):
     def __init__(self, bus: MessageBus):
         self.bus = bus
 
-    def handle(self, event: LockTestEvent) -> None:  # noqa: ARG002
+    def handle(self, event: NestedLockingEvent) -> None:  # noqa: ARG002
         logging.info("Pre-nested call")
         self.bus.dispatch(LogTestEvent("Nested call"), [LoggingEventHandler()])
         logging.info("Post-nested call")

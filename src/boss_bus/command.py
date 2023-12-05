@@ -13,9 +13,12 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Generic, Type, TypeVar
 
-from typeguard import typechecked
-
-from boss_bus.interface import Message, MissingHandlerError, SupportsHandle
+from boss_bus.interface import (
+    InvalidHandlerError,
+    Message,
+    MissingHandlerError,
+    SupportsHandle,
+)
 
 from ._utils.typing import get_annotations, type_matches
 
@@ -41,17 +44,18 @@ class TooManyHandlersError(Exception):
     """Only one handler can be used with a command."""
 
 
-class InvalidHandlerError(Exception):
-    """The handler does not match the command."""
-
-
-# TODO add this to Event bus?
 def _validate_handler(
     command_type: Type[Command], handler: CommandHandler[Any]
 ) -> None:
+    if isinstance(handler, type):
+        raise InvalidHandlerError(
+            f"The handler '{getattr(handler, '__name__', handler)}'"
+            f"must be instantiated to be registered with the command bus"
+        )
     if not type_matches(get_annotations(handler.handle)["command"], command_type):
         raise InvalidHandlerError(
-            f"The handler '{handler}' does not match the command '{command_type.__name__}'"
+            f"The handler '{getattr(handler, '__name__', handler)}' does not match"
+            f"the command '{getattr(command_type, '__name__', command_type)}'"
         )
 
 
@@ -73,7 +77,6 @@ class CommandBus:
         """Creates a Command Bus."""
         self._handlers: dict[type[Command], CommandHandler[Any]] = {}
 
-    @typechecked
     def register_handler(
         self,
         command_type: Type[CommandT],
@@ -93,7 +96,6 @@ class CommandBus:
 
         self._handlers[command_type] = handler
 
-    @typechecked
     def remove_handler(self, command_type: Type[CommandT]) -> None:
         """Remove a previously registered handler.
 
@@ -129,7 +131,6 @@ class CommandBus:
 
         return False
 
-    @typechecked
     def execute(
         self,
         command: CommandT,
