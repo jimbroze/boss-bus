@@ -10,7 +10,7 @@ from typing import (
     get_type_hints,
 )
 
-from .loader import ClassLoader, obj
+from .loader import ClassLoader, ObjectT
 
 RETURN_ANNOTATION = "return"
 
@@ -33,7 +33,7 @@ class ClassInstantiator(ClassLoader):
         """
         self.dependencies.append(dependency)
 
-    def _instantiate(self, cls: Type[obj]) -> obj:
+    def _instantiate(self, cls: Type[ObjectT]) -> ObjectT:
         """Instantiates a class and any simple dependencies it has.
 
         Simple dependencies are defined as those which can be instantiated.

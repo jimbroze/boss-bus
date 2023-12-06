@@ -10,7 +10,7 @@ from boss_bus import ClassLoader
 from boss_bus.loader.instantiator import ClassInstantiator
 
 if TYPE_CHECKING:
-    from boss_bus.loader.loader import obj
+    from boss_bus.loader.loader import ObjectT
 
 
 class LagomLoader(ClassLoader):
@@ -25,14 +25,14 @@ class LagomLoader(ClassLoader):
         self.instantiator = ClassInstantiator()
 
     def add_dependency(self, dependency: object) -> None:
-        """Add an already instantiated object dependency that can be retrieved.
+        """Adds an already instantiated object dependency that can be retrieved.
 
         This is delegated to a ClassInstantiator object rather than being added
         to the container. This keeps container definitions explicit.
         """
         self.instantiator.add_dependency(dependency)
 
-    def _instantiate(self, cls: Type[obj]) -> obj:
+    def _instantiate(self, cls: Type[ObjectT]) -> ObjectT:
         try:
             return self.container.resolve(cls)
         except NameError:

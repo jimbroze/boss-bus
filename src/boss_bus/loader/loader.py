@@ -5,7 +5,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Type, TypeVar, overload
 
-obj = TypeVar("obj", bound=object)
+ObjectT = TypeVar("ObjectT", bound=object)
 
 
 class ClassLoader(ABC):
@@ -16,14 +16,14 @@ class ClassLoader(ABC):
         """Add an already instantiated object dependency that can be retrieved."""
 
     @overload
-    def load(self, cls: Type[obj]) -> obj:
+    def load(self, cls: Type[ObjectT]) -> ObjectT:
         pass
 
     @overload
-    def load(self, cls: obj) -> obj:
+    def load(self, cls: ObjectT) -> ObjectT:
         pass
 
-    def load(self, cls: Type[obj] | obj) -> obj:
+    def load(self, cls: Type[ObjectT] | ObjectT) -> ObjectT:
         """Instantiates a class or returns an already instantiated instance.
 
         If cls is an uninstantiated class, try to instantiate it and its dependencies.
@@ -36,5 +36,5 @@ class ClassLoader(ABC):
         return self._instantiate(cls)
 
     @abstractmethod
-    def _instantiate(self, cls: Type[obj]) -> obj:
+    def _instantiate(self, cls: Type[ObjectT]) -> ObjectT:
         """Instantiates a class."""
