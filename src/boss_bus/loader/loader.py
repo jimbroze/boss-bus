@@ -23,6 +23,18 @@ class ClassLoader(ABC):
     def load(self, cls: obj) -> obj:
         pass
 
-    @abstractmethod
     def load(self, cls: Type[obj] | obj) -> obj:
-        """Instantiates a class or returns an already instantiated object."""
+        """Instantiates a class or returns an already instantiated instance.
+
+        If cls is an uninstantiated class, try to instantiate it and its dependencies.
+        If cls is an instantiated object, return it.
+        """
+        if not isinstance(cls, type):
+            return cls
+
+        # noinspection PyTypeChecker
+        return self._instantiate(cls)
+
+    @abstractmethod
+    def _instantiate(self, cls: Type[obj]) -> obj:
+        """Instantiates a class."""

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type, overload
+from typing import TYPE_CHECKING, Type
 
 from lagom import Container
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class LagomLoader(ClassLoader):
-    """Uses a Lagom DI container as a class Loader."""
+    """Enables the use of a Lagom IoC (DI) container as a class Loader."""
 
     def __init__(
         self,
@@ -27,25 +27,10 @@ class LagomLoader(ClassLoader):
     def add_dependency(self, dependency: object) -> None:
         """Add an already instantiated object dependency that can be retrieved.
 
-        Keeps container definitions explicit
+        This is delegated to a ClassInstantiator object rather than being added
+        to the container. This keeps container definitions explicit.
         """
         self.instantiator.add_dependency(dependency)
-
-    @overload
-    def load(self, cls: Type[obj]) -> obj:
-        pass
-
-    @overload
-    def load(self, cls: obj) -> obj:
-        pass
-
-    def load(self, cls: Type[obj] | obj) -> obj:
-        """Instantiates a class or returns an already instantiated instance."""
-        if not isinstance(cls, type):
-            return cls
-
-        # noinspection PyTypeChecker
-        return self._instantiate(cls)
 
     def _instantiate(self, cls: Type[obj]) -> obj:
         try:
