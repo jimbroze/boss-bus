@@ -26,7 +26,7 @@ from boss_bus.middleware import DEFAULT_MIDDLEWARE
 from boss_bus.middleware.middleware import Middleware, create_middleware_chain
 
 if TYPE_CHECKING:
-    from boss_bus.loader import ClassLoader
+    from boss_bus import ClassLoader
 
 
 class MessageBus:

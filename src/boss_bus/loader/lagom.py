@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Type, overload
+from typing import TYPE_CHECKING, Type, overload
 
 from lagom import Container
 
-from boss_bus.loader import ClassLoader, obj
+from boss_bus import ClassLoader
 from boss_bus.loader.instantiator import ClassInstantiator
+
+if TYPE_CHECKING:
+    from boss_bus.loader.loader import obj
 
 
 class LagomLoader(ClassLoader):

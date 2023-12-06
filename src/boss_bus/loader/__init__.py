@@ -1,30 +1,13 @@
-"""Classes that load dependencies and use them to instantiate classes.
+"""Classes that load dependencies and use them to instantiate classes."""
 
-Class loading classes should implement the Interface (ClassLoader)
-"""
-from __future__ import annotations
+from .instantiator import ClassInstantiator
+from .loader import ClassLoader
 
-from abc import ABC, abstractmethod
-from typing import Type, TypeVar, overload
+__all__ = ["ClassLoader", "ClassInstantiator"]
 
-obj = TypeVar("obj", bound=object)
+try:
+    from .lagom import LagomLoader  # noqa: F401
 
-
-class ClassLoader(ABC):
-    """An Interface that allows loading dependencies and instantiating classes."""
-
-    @abstractmethod
-    def add_dependency(self, dependency: object) -> None:
-        """Add an already instantiated object dependency that can be retrieved."""
-
-    @overload
-    def load(self, cls: Type[obj]) -> obj:
-        pass
-
-    @overload
-    def load(self, cls: obj) -> obj:
-        pass
-
-    @abstractmethod
-    def load(self, cls: Type[obj] | obj) -> obj:
-        """Instantiates a class or returns an already instantiated object."""
+    __all__.append("LagomLoader")  # pragma: no cover
+except ImportError:
+    pass

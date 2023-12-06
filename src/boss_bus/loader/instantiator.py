@@ -11,7 +11,7 @@ from typing import (
     overload,
 )
 
-from boss_bus.loader import ClassLoader, obj
+from .loader import ClassLoader, obj
 
 RETURN_ANNOTATION = "return"
 
