@@ -5,7 +5,9 @@ from __future__ import annotations
 from functools import partial
 from typing import Any, Callable, Protocol, runtime_checkable
 
-from boss_bus.interface import Message, MessageT  # noqa: TCH001
+from boss_bus.interface import Message, MessageT
+
+HandlerT = Callable[[MessageT], Any]
 
 
 @runtime_checkable
@@ -17,7 +19,7 @@ class Middleware(Protocol):
     def handle(
         self,
         message: MessageT,
-        next_middleware: Callable[[MessageT], Any],
+        next_middleware: HandlerT[MessageT],
     ) -> Any:
         """Perform actions before or after message handling."""
 
@@ -27,14 +29,14 @@ class Middleware(Protocol):
 
 
 def create_middleware_chain(
-    bus_closure: Callable[[MessageT], Any],
+    bus_closure: HandlerT[MessageT],
     middlewares: list[Middleware],
-) -> Callable[[MessageT], Any]:
+) -> HandlerT[MessageT]:
     """Creates a chain of middleware finishing with a bus."""
 
     def middleware_closure(
         current_middleware: Middleware,
-        next_closure: Callable[[MessageT], Any],
+        next_closure: HandlerT[MessageT],
         message: MessageT,
     ) -> Any:
         return current_middleware.handle(message, next_closure)

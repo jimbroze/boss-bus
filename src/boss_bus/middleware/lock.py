@@ -1,4 +1,4 @@
-"""Enable automated logging within message handling."""
+"""Facilitating 'locking' a message bus to prioritise a message."""
 
 from __future__ import annotations
 
@@ -6,12 +6,12 @@ import os
 import threading
 import time
 from multiprocessing import Value
-from typing import TYPE_CHECKING, Any, Callable, Tuple
+from typing import TYPE_CHECKING, Any, Tuple
 
 from boss_bus.command import Command
 from boss_bus.event import Event
 from boss_bus.interface import Message, MessageT
-from boss_bus.middleware.middleware import Middleware
+from boss_bus.middleware.middleware import HandlerT, Middleware
 
 if TYPE_CHECKING:
     import ctypes
@@ -20,17 +20,17 @@ if TYPE_CHECKING:
 
 
 class LockingMessage(Message):
-    """A message that must be handled completely before other messages can be handled."""
+    """A message that must be finish being handled before other messages can be handled."""
 
     locking_message = True
 
 
 class LockingCommand(LockingMessage, Command):
-    """A form of command that must finish being handled before other commands can be executed."""
+    """A command that must finish being handled before other commands can be executed."""
 
 
 class LockingEvent(LockingMessage, Event):
-    """A form of event that must finish being handled before other events can be dispatched."""
+    """An event that must finish being handled before other events can be dispatched."""
 
 
 def get_thread_id() -> int:
@@ -38,7 +38,7 @@ def get_thread_id() -> int:
     return int(str(os.getpid()) + str(threading.get_ident()))
 
 
-MessageHandlerTuple = Tuple[MessageT, Callable[[MessageT], Any]]
+MessageHandlerTuple = Tuple[MessageT, HandlerT[MessageT]]
 
 
 class BusLocker(Middleware):
@@ -61,7 +61,7 @@ class BusLocker(Middleware):
     def handle(
         self,
         message: MessageT,
-        next_middleware: Callable[[MessageT], Any],
+        next_middleware: HandlerT[MessageT],
     ) -> Any:
         """Locks a message bus while a message is being handled."""
         thread_id = get_thread_id()
@@ -89,7 +89,7 @@ class BusLocker(Middleware):
     def _postpone_handling(
         self,
         message: MessageT,
-        next_middleware: Callable[[MessageT], Any],
+        next_middleware: HandlerT[MessageT],
     ) -> None:
         self.queue.append((message, next_middleware))
 

@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import logging
 from abc import ABC
-from typing import Any, Callable, ClassVar, cast
+from typing import Any, ClassVar, cast
 
 from boss_bus.command import Command
 from boss_bus.event import Event
 from boss_bus.interface import Message, MessageT
-from boss_bus.middleware.middleware import Middleware
+from boss_bus.middleware.middleware import HandlerT, Middleware
 
 
 class LoggingMessage(Message, ABC):
@@ -64,7 +64,7 @@ class MessageLogger(Middleware):
     def handle(
         self,
         message: MessageT,
-        next_middleware: Callable[[MessageT], Any],
+        next_middleware: HandlerT[MessageT],
     ) -> Any:
         """Submits logs and handles messages."""
         if not self.message_applicable(message):
