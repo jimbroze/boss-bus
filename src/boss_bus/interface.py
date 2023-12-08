@@ -7,14 +7,15 @@ from typing import Any, Protocol, TypeVar, runtime_checkable
 
 
 class Message(ABC):
-    """An abstract DTO for use with handlers."""
+    """An abstract DTO that gets passed to handlers."""
 
     message_type: str = "message"
 
     @property
     def message_name(self) -> str:
         """Defines the name of a message being logged."""
-        return type(self).__name__
+        msg_type = type(self)
+        return getattr(msg_type, "__name__", str(msg_type))
 
 
 MessageT = TypeVar("MessageT", bound=Message)
@@ -34,4 +35,4 @@ class MissingHandlerError(Exception):
 
 
 class InvalidHandlerError(Exception):
-    """The handler does not match the message."""
+    """The message and handler do not match."""

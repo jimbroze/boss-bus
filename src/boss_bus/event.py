@@ -1,11 +1,6 @@
-"""Interfaces for a form of message bus that handles events.
+"""Classes for a form of message bus that handles events.
 
-Events can have multiple handlers.
-
-Classes:
-
-    Event
-    EventBus
+Events can have multiple handlers but cannot return a value.
 """
 
 from __future__ import annotations
@@ -33,26 +28,27 @@ EventT = TypeVar("EventT", bound=Event)
 
 
 class EventHandler(ABC, SupportsHandle, Generic[EventT]):
-    """A form of message which only has one handler."""
+    """A form of message handler to be used with events."""
 
     @abstractmethod
     def handle(self, command: EventT) -> Any:
-        """Perform actions using a specific command."""
+        """Perform actions using a specific event."""
 
 
 class MissingEventError(Exception):
-    """The requested Error could not be found."""
+    """The requested Event could not be found."""
 
 
 def _validate_handler(event_type: Type[Event], handler: EventHandler[Any]) -> None:
     if isinstance(handler, type):
         raise InvalidHandlerError(
-            f"The handler '{getattr(handler, '__name__', handler)}'"
+            f"The handler '{getattr(handler, '__name__', handler)}' "
             f"must be instantiated to be registered with the event bus"
         )
     if not type_matches(get_annotations(handler.handle)["event"], event_type):
         raise InvalidHandlerError(
-            f"The handler '{handler}' does not match the event '{getattr(event_type, '__name__', event_type)}'"
+            f"The handler '{getattr(handler, '__name__', handler)}' does "
+            f"not match the event '{getattr(event_type, '__name__', event_type)}'"
         )
 
 
@@ -79,7 +75,7 @@ class EventBus:
         event_type: Type[EventT],
         handlers: Sequence[EventHandler[EventT]],
     ) -> None:
-        """Register handlers that will dispatch a type of Event.
+        """Registers event handlers that will dispatch a type of Event.
 
         Handlers must be objects with a handle() method.
 
@@ -100,7 +96,7 @@ class EventBus:
         event_type: Type[EventT],
         handlers: Sequence[EventHandler[EventT]] | None = None,
     ) -> None:
-        """Remove previously registered handlers.
+        """Removes previously registered event handlers.
 
         If handlers are provided, handlers of this class will be removed.
 
@@ -140,7 +136,8 @@ class EventBus:
 
             if not matching_handlers:
                 raise MissingHandlerError(
-                    f"The handler '{handler}' has not been registered for event '{event_type.__name__}'"
+                    f"The handler '{handler}' has not been registered for event "
+                    f"'{getattr(event_type, '__name__', event_type)}'"
                 )
 
             for matched_handler in matching_handlers:
@@ -162,7 +159,7 @@ class EventBus:
     def dispatch(
         self, event: EventT, handlers: Sequence[EventHandler[EventT]] | None = None
     ) -> None:
-        """Dispatch events to their handlers.
+        """Calls the handle methods on an event's handlers.
 
         Handlers can be dispatched directly or pre-registered with 'add_handlers'.
         Previously registered handlers dispatch first.

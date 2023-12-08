@@ -1,11 +1,6 @@
-"""Interfaces for a form of message bus that executes commands.
+"""Classes for a form of message bus that executes commands.
 
 Commands can only have one handler.
-
-Classes:
-
-    Command
-    CommandBus
 """
 
 from __future__ import annotations
@@ -24,7 +19,7 @@ from ._utils.typing import get_annotations, type_matches
 
 
 class Command(Message):
-    """A form of message which only has one handler."""
+    """A form of message which only has one handler and can return results."""
 
     message_type: str = "command"
 
@@ -33,7 +28,7 @@ CommandT = TypeVar("CommandT", bound=Command)
 
 
 class CommandHandler(ABC, SupportsHandle, Generic[CommandT]):
-    """A form of message which only has one handler."""
+    """A form of message handler to be used with a command."""
 
     @abstractmethod
     def handle(self, command: CommandT) -> Any:
@@ -49,12 +44,12 @@ def _validate_handler(
 ) -> None:
     if isinstance(handler, type):
         raise InvalidHandlerError(
-            f"The handler '{getattr(handler, '__name__', handler)}'"
+            f"The handler '{getattr(handler, '__name__', handler)}' "
             f"must be instantiated to be registered with the command bus"
         )
     if not type_matches(get_annotations(handler.handle)["command"], command_type):
         raise InvalidHandlerError(
-            f"The handler '{getattr(handler, '__name__', handler)}' does not match"
+            f"The handler '{getattr(handler, '__name__', handler)}' does not match "
             f"the command '{getattr(command_type, '__name__', command_type)}'"
         )
 
@@ -97,7 +92,7 @@ class CommandBus:
         self._handlers[command_type] = handler
 
     def remove_handler(self, command_type: Type[CommandT]) -> None:
-        """Remove a previously registered handler.
+        """Remove a previously registered command handler.
 
         Example:
             >>> from tests.examples import PrintCommand, PrintCommandHandler
@@ -110,13 +105,14 @@ class CommandBus:
         """
         if command_type not in self._handlers:
             raise MissingHandlerError(
-                f"A handler has not been registered for the command '{command_type.__name__}'"
+                f"A handler has not been registered for the command "
+                f"'{getattr(command_type, '__name__', command_type)}'"
             )
 
         del self._handlers[command_type]
 
     def is_registered(self, command_type: Type[CommandT]) -> bool:
-        """Checks if a command is registered with the bus.
+        """Checks if a command is registered with the command bus.
 
         Example:
             >>> from tests.examples import PrintCommand, PrintCommandHandler
@@ -153,13 +149,17 @@ class CommandBus:
         matched_handler = self._handlers.get(type(command), handler)
 
         if handler and handler != matched_handler:
+            cmd_type = type(command)
             raise TooManyHandlersError(
-                f"A handler has already been registered for the command '{type(command).__name__}'"
+                f"A handler has already been registered for the command "
+                f"'{getattr(cmd_type, '__name__', cmd_type)}'"
             )
 
         if not matched_handler:
+            cmd_type = type(command)
             raise MissingHandlerError(
-                f"A handler has not been registered for the command '{type(command).__name__}'"
+                f"A handler has not been registered for the command "
+                f"'{getattr(cmd_type, '__name__', cmd_type)}'"
             )
 
         return matched_handler.handle(command)
