@@ -16,25 +16,29 @@ class LoggingMessage(Message, ABC):
     """A form of message that submits logs when being handled."""
 
     logging_message = True
-    message_verbs: ClassVar[list[str]] = ["handle", "handled", "handling"]
+    message_verbs: ClassVar[dict[str, str]] = {
+        "finite": "handle",
+        "past": "handled",
+        "present": "handling",
+    }
 
     def pre_handle_log(self) -> str:
         """Creates some text to be logged before handling."""
-        handling = self.message_verbs[2].capitalize()
+        handling = self.message_verbs["present"].capitalize()
         message = self.message_type
         name = self.message_name
         return f"{handling} {message} <{name}>"
 
     def post_handle_log(self) -> str:
         """Creates some text to be logged after handling."""
-        handled = self.message_verbs[1]
+        handled = self.message_verbs["past"]
         message = self.message_type
         name = self.message_name
         return f"Successfully {handled} {message} <{name}>"
 
     def error_log(self) -> str:
         """Creates some text to be logged if an error is raised."""
-        handling = self.message_verbs[2]
+        handling = self.message_verbs["present"]
         message = self.message_type
         name = self.message_name
         return f"Failed {handling} {message} <{name}>"
@@ -43,13 +47,21 @@ class LoggingMessage(Message, ABC):
 class LoggingCommand(LoggingMessage, Command):
     """A form of command that submits logs when being handled."""
 
-    message_verbs: ClassVar[list[str]] = ["execute", "executed", "executing"]
+    message_verbs: ClassVar[dict[str, str]] = {
+        "finite": "execute",
+        "past": "executed",
+        "present": "executing",
+    }
 
 
 class LoggingEvent(LoggingMessage, Event):
     """A form of event that submits logs when being handled."""
 
-    message_verbs: ClassVar[list[str]] = ["dispatch", "dispatched", "dispatching"]
+    message_verbs: ClassVar[dict[str, str]] = {
+        "finite": "dispatch",
+        "past": "dispatched",
+        "present": "dispatching",
+    }
 
 
 class MessageLogger(Middleware):
