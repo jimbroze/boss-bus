@@ -1,12 +1,8 @@
-"""The main entrypoint to the Boss-Bus package.
+"""The main entrypoint to the Boss-Bus package."""
 
-Classes:
-
-    MessageBus
-"""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Sequence, Type, Union
+from typing import TYPE_CHECKING, Any, Sequence, Type
 
 from typeguard import typeguard_ignore
 
@@ -108,7 +104,9 @@ class MessageBus:
         message_type: Type[EventT],
         handlers: Sequence[Type[EventHandler[EventT]] | EventHandler[EventT]],
     ) -> None:
-        """Register handlers that can dispatch a type of Event.
+        """Register event handlers that can dispatch a specicifc type of Event.
+
+        Handlers may be passed as a class or object.
 
         Example:
             >>> from tests.examples import ExampleEvent, ExampleEventHandler, OtherEventHandler
@@ -125,9 +123,11 @@ class MessageBus:
     def register_command(
         self,
         message_type: Type[CommandT],
-        handler: Union[Type[CommandHandler[CommandT]], CommandHandler[CommandT]],
+        handler: Type[CommandHandler[CommandT]] | CommandHandler[CommandT],
     ) -> None:
-        """Register a handler that can dispatch a type of Command.
+        """Register a command handler that can dispatch a specific type of Command.
+
+        The handler may be passed as a class or object.
 
         Example:
             >>> from tests.examples import PrintCommand, PrintCommandHandler
@@ -147,7 +147,7 @@ class MessageBus:
         handlers: Sequence[Type[EventHandler[EventT]] | EventHandler[EventT]]
         | None = None,
     ) -> None:
-        """Remove handlers that are registered to dispatch an Event.
+        """Remove event handlers that are registered to dispatch an Event.
 
         If handlers are provided, handlers of that class will be removed.
 
@@ -179,7 +179,7 @@ class MessageBus:
         return self.event_bus.remove_handlers(message_type, loaded_handlers)
 
     def deregister_command(self, message_type: Type[CommandT]) -> None:
-        """Remove a handler that is registered to execute a Command.
+        """Remove a command handler that is registered to execute a Command.
 
         Example:
             >>> from tests.examples import PrintCommand, PrintCommandHandler
@@ -206,7 +206,7 @@ class MessageBus:
         return self.event_bus.has_handlers(event_type)
 
     def is_registered(self, command_type: Type[CommandT]) -> bool:
-        """Returns whether a command is registered with the command bus.
+        """Whether a command is registered with the command bus.
 
         Example:
             >>> from tests.examples import PrintCommand, PrintCommandHandler
