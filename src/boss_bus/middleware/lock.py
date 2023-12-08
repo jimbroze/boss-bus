@@ -42,16 +42,26 @@ MessageHandlerTuple = Tuple[MessageT, HandlerT[MessageT]]
 
 
 class BusLocker(Middleware):
-    """Locks a MessageBus to prevent messages from being handled."""
+    """Locks a MessageBus to prevent messages from being handled.
+
+    Attributes:
+        message_id (str): The name of a bool attribute set to true on locking messages.
+        timeout_attr (str): The name of a float attribute found on locking message that
+            want to override the locking timeout.
+
+    """
 
     message_id: str = "locking_message"
     timeout_attr: str = "locking_timeout"
 
     def __init__(self, timeout: float = 5):
-        """Creates a middleware class that can lock buses while messages are being handled.
+        """Creates a middleware that can lock prioritise handling a single message.
 
-        timeout sets the maximum time that a message will be paused for.
-        After this, the lock will be ignored and handling will continue.
+        The lock will be ignored after a set time has passed.
+
+        Args:
+            timeout (float): The default maximum time that a message will be paused for.
+                Defaults to 5.
         """
         self.default_timeout = timeout
         self.timeout: SynchronizedBase[ctypes.c_double] = Value("d", timeout)
@@ -114,5 +124,5 @@ class BusLocker(Middleware):
 
     @property
     def bus_locked(self) -> bool:
-        """Whether new messages will be processed immediately."""
+        """Whether execution of new messages should wait."""
         return self.locking_thread.value != 0  # type: ignore[attr-defined, no-any-return]

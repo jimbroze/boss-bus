@@ -2,26 +2,36 @@
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from functools import partial
-from typing import Any, Callable, Protocol, runtime_checkable
+from typing import Any, Callable
 
 from boss_bus.interface import Message, MessageT
 
 HandlerT = Callable[[MessageT], Any]
 
 
-@runtime_checkable
-class Middleware(Protocol):
+class Middleware(ABC):
     """Performs actions before or after message handling."""
 
-    message_id: str
+    @property
+    @abstractmethod
+    def message_id(self) -> str:
+        """The name of a bool attr set on messages that this middleware should use."""
 
+    @abstractmethod
     def handle(
         self,
         message: MessageT,
         next_middleware: HandlerT[MessageT],
     ) -> Any:
-        """Perform actions before or after message handling."""
+        """Performs actions before or after a message is handled.
+
+        Args:
+            message (MessageT): The message to be handled by this middleware.
+            next_middleware (Callable[[MessageT], Any]): The next handler that the
+                message should be passed to.
+        """
 
     def message_applicable(self, message: Message) -> bool:
         """Should the current middleware do anything with this message."""
@@ -32,17 +42,17 @@ def create_middleware_chain(
     bus_closure: HandlerT[MessageT],
     middlewares: list[Middleware],
 ) -> HandlerT[MessageT]:
-    """Creates a chain of middleware finishing with a bus."""
+    """Creates a chain of middleware handlers finishing with a command or event bus."""
 
     def middleware_closure(
-        current_middleware: Middleware,
+        middleware: Middleware,
         next_closure: HandlerT[MessageT],
         message: MessageT,
     ) -> Any:
-        return current_middleware.handle(message, next_closure)
+        return middleware.handle(message, next_closure)
 
-    next_middleware = bus_closure
-    for middleware in reversed(middlewares):
-        next_middleware = partial(middleware_closure, middleware, next_middleware)
+    next_handler = bus_closure
+    for one_middleware in reversed(middlewares):
+        next_handler = partial(middleware_closure, one_middleware, next_handler)
 
-    return next_middleware
+    return next_handler

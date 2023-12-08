@@ -65,7 +65,7 @@ class LoggingEvent(LoggingMessage, Event):
 
 
 class MessageLogger(Middleware):
-    """Connects a logger to be used for automated message logging."""
+    """Allows a standard logger to be used for automated message logging."""
 
     message_id = "logging_message"
 
@@ -78,7 +78,7 @@ class MessageLogger(Middleware):
         message: MessageT,
         next_middleware: HandlerT[MessageT],
     ) -> Any:
-        """Submits logs and handles messages."""
+        """Submits logs for messages if that request it."""
         if not self.message_applicable(message):
             return next_middleware(message)
         msg = cast(LoggingMessage, message)
@@ -87,8 +87,8 @@ class MessageLogger(Middleware):
 
         try:
             result = next_middleware(message)
-        except Exception:
-            self.logger.exception(msg.error_log())
+        except Exception as e:
+            self.logger.exception(msg.error_log(), exc_info=e)
             raise
 
         self.logger.info(msg.post_handle_log())
