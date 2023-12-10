@@ -99,7 +99,7 @@ class MessageBus:
         bus(event)
 
     @typeguard_ignore
-    def register_event(
+    def register_events(
         self,
         message_type: Type[EventT],
         handlers: Sequence[Type[EventHandler[EventT]] | EventHandler[EventT]],
@@ -111,7 +111,7 @@ class MessageBus:
         Example:
             >>> from tests.examples import ExampleEvent, ExampleEventHandler, OtherEventHandler
             >>> bus = MessageBus()
-            >>> bus.register_event(ExampleEvent, [ExampleEventHandler, OtherEventHandler])
+            >>> bus.register_events(ExampleEvent, [ExampleEventHandler, OtherEventHandler])
             >>>
             >>> bus.has_handlers(ExampleEvent)
             2
@@ -155,7 +155,7 @@ class MessageBus:
             >>> from tests.examples import ExampleEvent, ExampleEventHandler, OtherEventHandler
             >>> bus = MessageBus()
             >>> example_handler = ExampleEventHandler()
-            >>> bus.register_event(ExampleEvent, [example_handler, OtherEventHandler])
+            >>> bus.register_events(ExampleEvent, [example_handler, OtherEventHandler])
             >>>
             >>> bus.deregister_event(ExampleEvent, [OtherEventHandler])
             >>> bus.has_handlers(ExampleEvent)
@@ -166,7 +166,7 @@ class MessageBus:
         Example:
             >>> from tests.examples import ExampleEvent, ExampleEventHandler, OtherEventHandler
             >>> bus = MessageBus()
-            >>> bus.register_event(ExampleEvent, [ExampleEventHandler, OtherEventHandler])
+            >>> bus.register_events(ExampleEvent, [ExampleEventHandler, OtherEventHandler])
             >>>
             >>> bus.deregister_event(ExampleEvent)
             >>> bus.has_handlers(ExampleEvent)
@@ -198,7 +198,7 @@ class MessageBus:
         Example:
             >>> from tests.examples import ExampleEvent, ExampleEventHandler
             >>> bus = MessageBus()
-            >>> bus.register_event(ExampleEvent, [ExampleEventHandler])
+            >>> bus.register_events(ExampleEvent, [ExampleEventHandler])
             >>>
             >>> bus.has_handlers(ExampleEvent)
             1

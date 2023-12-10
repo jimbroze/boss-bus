@@ -81,7 +81,7 @@ class TestMessageBus:
         handler = ExampleEventHandler()
         bus = MessageBus()
 
-        bus.register_event(ExampleEvent, [handler])
+        bus.register_events(ExampleEvent, [handler])
 
         assert ExampleEvent in bus.event_bus._handlers  # noqa: SLF001
 
@@ -100,7 +100,7 @@ class TestMessageBus:
         event_bus = EventBus()
         bus = MessageBus(event_bus=event_bus)
 
-        bus.register_event(ExampleEvent, [handler])
+        bus.register_events(ExampleEvent, [handler])
         bus.deregister_event(ExampleEvent, [handler])
 
         assert handler not in event_bus._handlers.get(ExampleEvent, [])  # noqa: SLF001
@@ -109,7 +109,7 @@ class TestMessageBus:
         event_bus = EventBus()
         bus = MessageBus(event_bus=event_bus)
 
-        bus.register_event(ExampleEvent, [ExampleEventHandler, OtherEventHandler])
+        bus.register_events(ExampleEvent, [ExampleEventHandler, OtherEventHandler])
 
         bus.deregister_event(ExampleEvent)
 
@@ -131,7 +131,7 @@ class TestMessageBus:
         bus = MessageBus()
         event = ExampleEvent("Testing...")
 
-        bus.register_event(ExampleEvent, [ExampleEventHandler])
+        bus.register_events(ExampleEvent, [ExampleEventHandler])
         bus.dispatch(event)
 
         captured = capsys.readouterr()
@@ -152,7 +152,7 @@ class TestMessageBus:
     def test_default_loader_can_be_used_to_deregister_events(self) -> None:
         bus = MessageBus()
 
-        bus.register_event(ExampleEvent, [ExampleEventHandler(), OtherEventHandler()])
+        bus.register_events(ExampleEvent, [ExampleEventHandler(), OtherEventHandler()])
         bus.deregister_event(ExampleEvent, [ExampleEventHandler])
 
         assert bus.has_handlers(ExampleEvent) == 1
